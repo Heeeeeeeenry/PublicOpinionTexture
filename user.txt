@@ -1,0 +1,668 @@
+@import 'compass';
+@import url('https://fonts.googleapis.com/css?family=Varela+Round');
+
+$bg: #0FA3B1;
+$text: #B5E2FA;
+$light: #FFEFAF;
+$accent: lighten(#F7A072, 10%);
+
+// html, body { height: 100%; padding:0; margin: 0; }
+body { 
+  background-color: $bg;
+  font-size: 20px;
+  font-family: "Varela Round";
+  color: $text;
+  position: relative;
+  padding-bottom: 3em;
+}
+
+footer {
+  padding: 1em 2em;
+  margin-top: 5em;
+  text-align: center;
+  font-size: 0.8em;
+}
+  
+.col-md-4 {
+  min-height: 10em;
+  position: relative;
+  text-align: center;
+  padding: 0;
+  transform: translateZ(1px); // chrome 3d transform bug fix
+}
+
+h1 {
+  margin: 1.5em 0 0.5em 0;
+  text-align: center;
+  color: $text;
+  font-size: 1.5em;
+  text-transform: uppercase;
+}
+
+h2 {
+  text-align: center;
+  font-size: 1em;
+  color: $accent;
+}
+
+h3 {
+  font-size: 1em;
+  position: absolute;
+  bottom: 0;
+  display: block;
+  width: 100%;
+  text-transform: uppercase;
+}
+
+a { color: $light; }
+a:hover { color: $accent; }
+
+.loading {
+  background: $light;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 50% 50%;
+  transform: translate(-50%, -50%);
+}
+
+/************************************************
+ 1 Seein' Birds
+************************************************/
+
+#loading1 {
+  
+  &, &::before, &::after {
+    position: absolute;
+    background: $light;
+    display: block;
+    content: '';
+    transform-origin: 50% 50%;
+  }
+  
+  & {
+    height: 2em;
+    width: 2em;
+    @include border-radius(2em);
+    @include border-top-right-radius(1.7em);
+    @include border-top-left-radius(1.7em);
+    background: rgba($light, 0.5);
+    border: 0.2em solid $light;
+    border-top-width: 0.7em;
+  }
+ 
+  &::before, &::after {
+    opacity: 0;
+    width: 1em;  
+    bottom: 2.5em;
+    left: 0;
+    background: transparent;
+    border-left: 1em solid $light;
+    border-top: .5em solid transparent;
+    border-bottom: .5em solid transparent;
+  }
+  
+  &::before {
+    animation: loading1 2s infinite;
+  }
+  
+  &::after {
+    animation: loading1 2s 1s infinite;    
+  }
+}
+
+@include keyframes(loading1) {
+  0% {
+    opacity: 1;
+    background: transparent;
+    border-left: 1em solid $light;
+    border-top: 0.5em solid transparent;
+    border-bottom: 0.5em solid transparent;
+    transform: translateX(-1em) rotateY(-90deg); //rotate(45deg);
+  }
+  16%, 34% {
+    // opacity: 1;
+    background: transparent;
+    border-left: 1em solid $light;
+    border-top: .5em solid transparent;
+    border-bottom: .5em solid transparent;
+  }
+  8%, 25%, 42% {
+    background: transparent;
+    border-left: 1em solid $light;
+    border-top: .2em solid transparent;
+    border-bottom: .2em solid transparent;
+  }
+  50% {
+    // opacity: 0;
+    background: transparent;
+    border-left: 1em solid $light;
+    border-top: .5em solid transparent;
+    border-bottom: .5em solid transparent;
+    transform: translateX(1.5em) rotateY(90deg);// rotate(-45deg);
+  }
+  64%, 86% {
+    // opacity: 1;
+    background: transparent;
+    border-left: 1em solid rgba($light, 0.5);
+    border-top: .3em solid transparent;
+    border-bottom: .3em solid transparent;
+  }
+  58%, 75%, 92% {
+    background: transparent;
+    border-left: 1em solid rgba($light, 0.5);
+    border-top: .2em solid transparent;
+    border-bottom: .2em solid transparent;
+  }
+  100% {
+    opacity: 1;
+    border-top: 0.5em solid transparent;
+    border-bottom: .5em solid transparent;
+    transform: translateX(-1em) rotateY(270deg); 
+  }
+}
+
+
+/************************************************
+ 2 Waves
+************************************************/
+$l2-r2: 0.5em;
+
+#loading2 {
+  &, &::before, &::after {
+    width: 0;
+    border-right: 1em solid $light;
+    border-left: 0em solid $light;
+    border-top: 0em solid transparent;
+    height: 2em;
+    display: block;
+    content: '';
+    position: absolute;
+    bottom: 0%;
+    background: transparent;
+  }
+ 
+  
+  &::before {
+    position: absolute;
+    left: -1.3em;
+    animation: loading2 3s infinite;
+  }
+  
+  & {
+    animation: loading2 3s infinite 0.3s;
+  }
+  
+  &::after {
+    position: absolute;
+    left: 1.3em;
+    animation: loading2 3s infinite 0.6s;
+  }
+}
+
+@include keyframes(loading2) {
+  0%, 100% { 
+    height: 2em;
+    width: 0;
+    border-left-width: 0;
+    border-right: 1em solid $light;
+    border-top: 0em solid transparent;
+  }
+  30% { 
+    height: 3em;
+    
+  }
+  50% {
+    border-top: 0.5em solid transparent;
+  }
+  70% {
+    border-top-width: 0;
+  }
+}
+
+
+
+/************************************************
+ 3 Pinwheel
+************************************************/
+
+$l3r: 2em;
+
+#loading3 {
+  &, &::before, &::after {
+    display: block;
+    content: '';
+    position: absolute;
+    bottom: 0;
+    background: $light;
+    transform-origin: 50% 50%;
+  }
+
+  
+  &::before {    
+    position: absolute;
+    top: -1em;
+    left: -0.4em;
+    width: 1em;
+    height: 2.5em;
+    transform: rotate(-45deg);
+    @include border-bottom-left-radius($l3r);
+    @include border-top-right-radius($l3r);
+    animation: loading3b 2s infinite;
+  }
+  
+  & {
+    background: $accent;
+    height: 3em;
+    width: 0.2em;
+    @include border-bottom-right-radius($l3r);
+    @include border-bottom-left-radius($l3r);
+  }
+  
+  &::after {
+    position: absolute;
+    top: -1em;
+    left: -0.4em;
+    width: 1em;
+    height: 2.5em;
+    transform: rotate(45deg);
+    @include border-bottom-left-radius($l3r);
+    @include border-top-right-radius($l3r);
+    animation: loading3a 2s infinite;
+  }
+}
+
+@include keyframes(loading3b) {
+  0% { transform: rotate(-45deg); }
+  100% { transform: rotate(680deg); }
+}
+@include keyframes(loading3a) {
+  0% { transform: rotate(45deg); }
+  100% { transform: rotate(765deg); }
+}
+
+/************************************************
+ 4 Gauge
+************************************************/
+
+#loading4 {
+  width: 4em;
+  height: 4em;
+  background: transparent;
+  @include border-radius(2em);
+  border: 0.5em solid $light;
+  position: relative;
+  border-bottom-color: rgba($light, 0.5);
+  
+  &::after {
+    position: absolute;
+    top: 0.75em;
+    left: 0.75em;
+    width: 1.5em;
+    height: 1.5em;
+    content: '';
+    display: block;
+    background: $light;
+    @include border-radius(1em);
+  }
+  
+  &::before {
+    position: absolute;
+    bottom: 1.5em;
+    left: 1em;
+    content: '';
+    display: block;
+    background: transparent;
+    transform-origin: 50% 100%;
+    border-bottom: 1.5em solid $accent;
+    border-right: 0.5em solid transparent;
+    border-left: 0.5em solid transparent;
+    animation: loading4 6s infinite;
+  }
+}
+
+@include keyframes(loading4) {
+  0% { transform: rotate(-135deg); opacity: 0; }
+  10% {  transform: rotate(-135deg); opacity: 1.0; }
+  30% { transform: rotate(-50deg); }
+  40% { transform: rotate(-70deg); }
+  60% { transform: rotate(35deg); }
+  70% { transform: rotate(30deg); animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1); }
+  90% { transform: rotate(135deg); opacity: 1.0; }
+  100% { transform: rotate(135deg); opacity: 0; }
+}
+
+/************************************************
+ 5 Cube
+************************************************/
+
+#loading5 {
+  position: relative;
+  width: 2em;
+  height: 2em;
+  transform-origin: 100% 0;
+  background-color: rgba($light, 1.0);
+  @include transform(translateX(-50%) translateY(-50%) rotateX(45deg) rotateZ(45deg));
+  animation: loading5 2s infinite;
+  
+  &, &::after, &::before {
+    @include backface-visibility(hidden);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+  
+  &::after, &::before {
+    display: block;
+    width: 2em;
+    height: 2em;
+    content: '';
+    background: rgba($light, 0.7);
+    position: absolute;
+  }
+  
+  &::before {
+    top: 2em;
+    left: 0;
+    transform-origin: 0 0;
+    transform: rotateX(-90deg);
+  }
+  
+  &::after {
+    top: 0;
+    left: 2em;
+    transform-origin: 0 0;
+    transform: rotateY(90deg);
+    animation: loading5a 2s infinite cubic-bezier(0.215, 0.61, 0.355, 1);
+  }
+}
+
+@include keyframes(loading5) {
+  0% {
+    background: rgba($light, 1.0);
+    transform: translateX(-50%) translateY(-50%) rotateX(0deg) rotateZ(0deg);
+  }
+  100% {
+    background: rgba($light, 0.7);
+    transform: translateX(-50%) translateY(-50%) rotateX(90deg) rotateZ(90deg);
+  }
+}
+@include keyframes(loading5a) {
+  0% {
+    background: rgba($light, 0.7);
+  }
+  100% {
+    background: rgba($light, 1.0);
+  }
+}
+
+
+
+/************************************************
+ 6 Cube 2
+************************************************/
+
+#loading6 {
+  position: relative;
+  width: 2em;
+  height: 2em;
+  transform-origin: 50% 50%;
+  background-color: rgba($light, 1.0);
+  @include transform(translateX(-50%) translateY(-100%) rotateX(45deg));
+  animation: loading6 1s infinite;
+  
+  &, &::after, &::before {
+    @include backface-visibility(hidden);
+    -webkit-transform-style: preserve-3d;
+    transform-style: preserve-3d;
+  }
+  
+  &::after, &::before {
+    display: block;
+    width: 2em;
+    height: 2em;
+    content: '';
+    background: rgba($light, 0.7);
+    position: absolute;
+  }
+  
+  &::before {
+    top: 2em;
+    left: 0;
+    transform-origin: 0 0;
+    transform: rotateX(-90deg);
+  }
+  
+  &::after {
+    top: 0;
+    left: 2em;
+    transform-origin: 0 0;
+    transform: rotateY(90deg);
+  }
+}
+
+@include keyframes(loading6) {
+  0% {
+    @include transform(translateX(-50%) translateY(-100%) rotateX(45deg) rotateZ(0deg));
+  }
+  100% {
+    @include transform(translateX(-50%) translateY(-100%) rotateX(45deg) rotateZ(90deg));    
+  }
+}
+
+
+/************************************************
+ 7 Droplet
+************************************************/
+
+#loading7 {
+  width: 0em; 
+  height: 0em;
+  top: 60%;
+  transform-origin: 50% 50%;
+  @include border-radius(2em);
+  @include transform(translate(-50%, -50%) rotateX(60deg));
+  -webkit-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+  border: 0em solid rgba($light, 0.5);
+  animation: loading7ripple 2s infinite;
+  background: rgba($light, 0.5);
+  
+  &::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    content: '';
+    display: block;
+    width: 0.1em;
+    height: 0.1em;
+    border: 0em solid rgba($light, 0.5);
+    @include border-radius(2em);
+    @include transform(translate(-50%, -50%));
+    background: $light;
+    animation: loading7ripple2 2s infinite;
+  }
+  
+  &::after {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    content: '';
+    display: block;
+    width: 0.5em;
+    height: 0.5em;
+    opacity: 0.0;
+    background: $light;
+    @include border-radius(1em);
+    @include border-top-left-radius(0);
+    // transform-origin:  50% 50%;
+    @include transform(rotateX(-60deg) translate(-50%, 3em) rotateZ(45deg));
+    animation: loading7drop 2s infinite;
+  }
+}
+
+@include keyframes(loading7drop) {
+  0% {
+    opacity: 0.0;
+    @include transform(rotateX(-60deg) translate(-50%, -4em) rotateZ(45deg));
+    animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+  }
+  15% { 
+    opacity: 1.0; 
+  }
+  35% {
+    @include transform(rotateX(-60deg) translate(-50%, -0.5em) rotateZ(45deg));
+    opacity: 1.0;
+  }
+  36%, 100% {
+    @include transform(rotateX(-60deg) translate(-50%, -0.5em) rotateZ(45deg));
+    opacity: 0.0;
+  }
+}
+
+@include keyframes(loading7ripple) {
+  0%, 35% {
+    width: 0;
+    height: 0;
+    border-width: 0;
+  }
+  65% { 
+    background: rgba($light, 0.5);
+    border-width: 0.3em;
+  }
+  85%, 100% {
+    background: rgba($light, 0.0);
+    width: 3.5em;
+    height: 3.5em;
+    border-width: 0;
+  }
+}
+@include keyframes(loading7ripple2) {
+  0%, 45% {
+    width: 0;
+    height: 0;
+    border-width: 0;
+  }
+  70% { 
+    background: rgba($light, 1.0);
+    border-width: 0.5em;
+  }
+  90%, 100% {
+    background: rgba($light, 0.0);
+    width: 2em;
+    height: 2em;
+    border-width: 0;
+  }
+}
+
+
+
+/************************************************
+ 8 bounce
+************************************************/
+
+
+
+#loading8 {
+  
+  width: 2em;
+  height: 2em;
+  background-color: transparent;
+  @include transform(translate(0, -50%));
+  
+  &::before, &::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    content: '';
+    display: block;
+    height: 2em;
+    width: 2em;
+    @include border-radius(3em);
+  }
+  
+  &::before {
+    z-index: 1;
+    top: 2em;
+    background: rgba(#000, 0.3);
+    @include transform(translate(-50%, -50%) rotateX(60deg));
+    animation: loading8shadow .75s infinite;
+    animation-direction: alternate;
+    animation-timing-function: cubic-bezier(.5,0.05,1,.5);
+  }
+  
+  &::after {
+    z-index: 2;
+    content: '\25CF';
+    color: #fff;
+    //@include box-shadow(0 -0.2em 0.7em rgba(darken($light, 70%), 0.7) inset);
+    @include text-shadow(0 0 0.3em #fff);
+    background: $light;
+    @include transform(translateX(-50%) translateY(-2em));
+    animation: loading8bounce .75s infinite;
+    animation-direction: alternate;
+    animation-timing-function: cubic-bezier(.5,0.05,1,.5);
+  }
+}
+
+@include keyframes(loading8bounce) {
+  0% {
+    top: 0;
+  }
+  80% {
+    height: 2em;
+    width: 2em;
+  }
+  100% {
+    top: 2.8em;
+    height: 1.5em;
+    width: 2.5em;
+  }
+}
+
+@include keyframes(loading8shadow) {
+  0% {
+    width: 1em;
+    height: 1em;
+    @include filter(blur(0.2em));
+  }
+  90% {
+    width: 2em;
+    height: 2em;
+    @include filter(blur(0));
+  }
+  100% {
+    background: rgba(#000, 0.7);
+  }
+}
+
+/************************************************
+ 9 
+************************************************/
+
+#loading9 {
+  background: transparent;
+  color: $light;
+  animation: loading9b 5s infinite;
+  
+  &::before {
+    content: 'Loading...';
+    background: linear-gradient(to right, $light, $light 50%, $text 55%, $text 100%);
+    background-repeat: no-repeat;
+    background-size: 200% 100%;
+    transform-origin: 0 0;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-position: 100% 0;
+    animation: loading9 5s infinite;
+  }
+}
+
+@include keyframes(loading9) {
+  0%, 20% { background-position: 400% 0; }
+  80% { background-position: 0% 0; }
+}
+
+@include keyframes(loading9b){
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 1.0; }
+}

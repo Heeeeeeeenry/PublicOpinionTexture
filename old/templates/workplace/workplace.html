@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>民意智感中心 - 业务系统</title>
+    <script src="/static/js/lib/tailwind.js"></script>
+    <link rel="stylesheet" href="/static/css/lib/fontawesome.min.css">
+    <link rel="stylesheet" href="/static/css/workplace/workplace.css">
+</head>
+<body class="bg-gray-100 h-screen overflow-hidden">
+    <div class="h-full flex flex-col">
+        <!-- 顶部栏 -->
+        <header class="bg-white shadow-sm h-16 flex items-center justify-between px-4 flex-shrink-0 z-20">
+            <!-- 左侧：菜单按钮和标题 -->
+            <div class="flex items-center">
+                <button id="menu-toggle" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition mr-3">
+                    <i class="fas fa-bars text-gray-600 text-lg"></i>
+                </button>
+                <h1 class="text-xl font-bold text-gray-800">民意智感中心</h1>
+            </div>
+
+            <!-- 右侧：通知、用户名、智能助手 -->
+            <div class="flex items-center space-x-4">
+                <!-- 通知图标 -->
+                <button class="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition">
+                    <i class="fas fa-bell text-gray-600 text-lg"></i>
+                    <span class="notification-badge"></span>
+                </button>
+
+                <!-- 用户名 -->
+                <div class="flex items-center px-3 py-1.5 bg-gray-50 rounded-xl">
+                    <i class="fas fa-user text-gray-500 mr-2"></i>
+                    <span class="text-gray-700 font-medium" id="username">管理员</span>
+                </div>
+
+                <!-- 智能助手 -->
+                <div id="ai-assistant" class="ai-assistant w-8 h-8 flex items-center justify-center" title="智能助手"></div>
+            </div>
+        </header>
+
+        <!-- 主体区域 -->
+        <div class="flex-1 flex overflow-hidden relative">
+            <!-- 侧边栏菜单 -->
+            <aside id="sidebar" class="sidebar absolute left-0 top-0 bottom-0 w-64 bg-white shadow-lg z-10 overflow-y-auto">
+                <nav class="p-4 pt-6" id="menu-container">
+                    <!-- 菜单将通过 JavaScript 动态加载 -->
+                </nav>
+            </aside>
+
+            <!-- 工作区 -->
+            <main id="workspace" class="workspace flex-1 ml-64 overflow-hidden">
+                <div id="workspace-content" class="h-full p-6">
+                    <!-- 页面内容将动态加载到这里 -->
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+
+    <!-- 第三方库 -->
+    <script src="/static/js/lib/anime.min.js"></script>
+    <script src="/static/js/lib/ai_icon_controller.js"></script>
+    <script src="/static/js/lib/marked.umd.js"></script>
+
+    <!-- AI控制器 -->
+    <script src="/static/js/AiController.js"></script>
+
+    <!-- 动画库 -->
+    <script src="/static/js/workplace/dispatch/animation.js"></script>
+    <script src="/static/js/workplace/processing/animation.js"></script>
+
+    <!-- 页面控制器 -->
+    <script src="/static/js/workplace/home/home.js"></script>
+    <script src="/static/js/workplace/letters/letters-controller.js"></script>
+    <script src="/static/js/workplace/category/category-controller.js"></script>
+    <script src="/static/js/workplace/users/users-controller.js"></script>
+    <script src="/static/js/workplace/organization/organization-controller.js"></script>
+    <script src="/static/js/workplace/special-focus/special-focus-controller.js"></script>
+
+    <!-- 工作台主控制器（模块方式加载，内部导入 dispatch 和 processing） -->
+    <script type="module" src="/static/js/workplace/workplace-controller.js"></script>
+</body>
+</html>
+    

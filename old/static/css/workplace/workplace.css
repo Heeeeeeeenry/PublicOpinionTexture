@@ -1,0 +1,63 @@
+/**
+ * Workplace 工作台样式
+ *
+ * 工作台主界面的样式定义
+ */
+
+/* 确保页面可以正确计算高度 */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/* 淡入动画 */
+body {
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+}
+
+body.fade-in {
+    opacity: 1;
+}
+
+/* 侧边栏动画 */
+.sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+.sidebar.closed {
+    transform: translateX(-100%);
+}
+
+/* 工作区内容 */
+.workspace {
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/* 页面容器 */
+.page-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+/* 智能助手容器 */
+.ai-assistant {
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.ai-assistant:hover {
+    transform: scale(1.1);
+}
+
+/* 通知红点 */
+.notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+}

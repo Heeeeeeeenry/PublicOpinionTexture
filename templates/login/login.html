@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>民意智感中心 - 登录</title>
+    <script src="/static/js/lib/tailwind.js"></script>
+    <link rel="stylesheet" href="/static/css/lib/fontawesome.min.css">
+    <link rel="stylesheet" href="/static/css/login/login.css">
+</head>
+<body class="bg-gray-50 min-h-screen flex items-center justify-center">
+    <div class="login-container">
+        <!-- Logo 和标题区域 -->
+        <div class="login-header">
+            <div class="logo" id="ai-logo">
+                <!-- Canvas 图标将在这里生成 -->
+            </div>
+            <h1 class="system-title">民意智感中心</h1>
+            <p class="system-subtitle">局长信箱管理系统</p>
+        </div>
+
+        <!-- 登录表单 -->
+        <div class="login-form-container">
+            <form id="login-form" class="login-form">
+                <div class="form-group">
+                    <label for="police-number">警号</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-id-badge input-icon"></i>
+                        <input
+                            type="text"
+                            id="police-number"
+                            name="police-number"
+                            placeholder="请输入警号"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock input-icon"></i>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            placeholder="请输入密码"
+                            required
+                        >
+                        <button type="button" class="toggle-password" id="toggle-password">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="remember-me" name="remember-me">
+                        <span>记住我</span>
+                    </label>
+                    <a href="#" class="forgot-password">忘记密码？</a>
+                </div>
+
+                <button type="submit" class="login-button" id="login-button">
+                    <span class="button-text">登录</span>
+                    <i class="fas fa-spinner fa-spin button-loading" style="display: none;"></i>
+                </button>
+            </form>
+        </div>
+
+        <!-- 底部信息 -->
+        <div class="login-footer">
+            <p>© 2026 民意智感中心 版权所有</p>
+        </div>
+    </div>
+
+    <script src="/static/js/lib/anime.min.js"></script>
+    <script src="/static/js/lib/ai_icon_controller.js"></script>
+    <script src="/static/js/login/login.js"></script>
+    <script>
+        // 创建 AI 图标
+        const aiLogo = new AIIconController('#ai-logo', {
+            size: 60,
+            color: '#4b5563'
+        });
+
+        // 随机眨眼（3-5秒间隔）
+        function randomBlink() {
+            const interval = 3000 + Math.random() * 2000; // 3-5秒随机
+            setTimeout(() => {
+                aiLogo.blink();
+                randomBlink(); // 递归调用，实现循环
+            }, interval);
+        }
+
+        // 启动随机眨眼
+        randomBlink();
+    </script>
+</body>
+</html>

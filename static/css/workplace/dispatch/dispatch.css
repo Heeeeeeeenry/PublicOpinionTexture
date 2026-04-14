@@ -1,0 +1,732 @@
+/**
+ * 下发工作台样式
+ *
+ * 用于下发工作台页面特定的样式
+ * 通用样式已在 workplace.css 中定义
+ */
+
+/* ============================================
+   页面容器布局
+   ============================================ */
+
+.dispatch-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 24px;
+}
+
+.dispatch-main-content {
+    flex: 1;
+    display: flex;
+    gap: 24px;
+    min-height: 0;
+}
+
+/* ============================================
+   左侧信件列表面板
+   ============================================ */
+
+.dispatch-letter-list-panel {
+    width: 240px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 30px rgba(0, 0, 0, 0.03);
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.dispatch-letter-list-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+.dispatch-letter-list-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dispatch-letter-list-panel::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 2px;
+}
+
+/* ============================================
+   信件列表项样式
+   ============================================ */
+
+.dispatch-item-category {
+    font-size: 14px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.dispatch-item-number {
+    font-size: 12px;
+    color: #6b7280;
+    font-family: monospace;
+    margin-bottom: 8px;
+}
+
+.dispatch-item-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.dispatch-item-citizen {
+    color: #6b7280;
+}
+
+.dispatch-item-time {
+    color: #9ca3af;
+}
+
+/* ============================================
+   右侧信件详情面板
+   ============================================ */
+
+.dispatch-letter-detail-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 30px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    min-width: 0;
+}
+
+.dispatch-letter-detail-panel.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+/* ============================================
+   详情顶部区域
+   ============================================ */
+
+.dispatch-detail-top {
+    display: flex;
+    gap: 24px;
+    padding: 12px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    height: 200px;
+}
+
+.dispatch-detail-info {
+    width: 40%;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.dispatch-detail-info .wp-info-row {
+    padding: 2px 0;
+    min-height: 20px;
+}
+
+.dispatch-detail-info .wp-info-row i {
+    line-height: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dispatch-detail-info .wp-editable-field {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    padding: 0 4px;
+    line-height: 20px;
+    height: 20px;
+    margin-left: 2px;
+}
+
+.dispatch-detail-info .wp-info-value {
+    margin-left: 6px;
+    line-height: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+}
+
+.dispatch-detail-content {
+    width: 60%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dispatch-content-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.dispatch-content-header i {
+    color: #6b7280;
+}
+
+.dispatch-appeal-textarea {
+    flex: 1;
+    width: 100%;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #374151;
+    background: transparent;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    resize: none;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.dispatch-appeal-textarea:hover {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 11px;
+}
+
+.dispatch-appeal-textarea:focus {
+    background: #ffffff;
+    border: 1px solid #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    padding: 11px;
+}
+
+.dispatch-appeal-textarea::placeholder {
+    color: #9ca3af;
+}
+
+/* ============================================
+   详情中部区域 - AI聊天
+   ============================================ */
+
+.dispatch-detail-middle {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid #f3f4f6;
+    min-height: 200px;
+    overflow: hidden;
+}
+
+.dispatch-ai-chat-messages {
+    flex: 1;
+    padding: 16px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dispatch-ai-chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.dispatch-ai-chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.dispatch-ai-chat-messages::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 2px;
+}
+
+.dispatch-ai-message {
+    display: flex;
+    gap: 12px;
+    max-width: 90%;
+}
+
+.dispatch-ai-message-ai {
+    align-self: flex-start;
+}
+
+.dispatch-ai-message-user {
+    align-self: flex-end;
+}
+
+.dispatch-ai-message-content {
+    padding: 10px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.dispatch-ai-message-ai .dispatch-ai-message-content {
+    background: #f3f4f6;
+    color: #374151;
+    border-bottom-left-radius: 4px;
+}
+
+.dispatch-ai-message-user .dispatch-ai-message-content {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.dispatch-ai-message-text {
+    word-break: break-word;
+}
+
+.dispatch-ai-message-text p {
+    margin: 0 0 8px 0;
+}
+
+.dispatch-ai-message-text p:last-child {
+    margin-bottom: 0;
+}
+
+.dispatch-ai-message-text ul,
+.dispatch-ai-message-text ol {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.dispatch-ai-message-text li {
+    margin: 4px 0;
+}
+
+.dispatch-ai-message-text code {
+    background: rgba(0, 0, 0, 0.1);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+.dispatch-ai-message-text pre {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 12px;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 8px 0;
+}
+
+.dispatch-ai-message-text pre code {
+    background: transparent;
+    padding: 0;
+}
+
+/* ============================================
+   AI聊天输入区域
+   ============================================ */
+
+.dispatch-ai-chat-input-wrapper {
+    display: flex;
+    padding: 8px 16px;
+    border-top: 1px solid #f3f4f6;
+    background: transparent;
+}
+
+.dispatch-ai-chat-input-container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dispatch-ai-chat-input {
+    width: 100%;
+    padding: 8px 40px 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #374151;
+    background: #ffffff;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.dispatch-ai-chat-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dispatch-ai-chat-input:disabled {
+    background: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+.dispatch-ai-chat-input::placeholder {
+    color: #9ca3af;
+}
+
+.dispatch-ai-chat-send {
+    position: absolute;
+    right: 4px;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dispatch-ai-chat-send:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.dispatch-ai-chat-send:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* ============================================
+   详情底部区域
+   ============================================ */
+
+.dispatch-detail-bottom {
+    padding: 16px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dispatch-bottom-row {
+    display: flex;
+    gap: 12px;
+}
+
+.dispatch-controls-row {
+    flex-wrap: wrap;
+}
+
+.dispatch-buttons-row {
+    justify-content: center;
+}
+
+/* ============================================
+   可搜索下拉框样式
+   ============================================ */
+
+.dispatch-searchable-select {
+    position: relative;
+    flex: 1;
+    min-width: 150px;
+}
+
+.dispatch-select-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.dispatch-select-input {
+    width: 100%;
+    padding: 6px 32px 6px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #374151;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dispatch-select-input:hover {
+    border-color: #d1d5db;
+}
+
+.dispatch-searchable-select.active .dispatch-select-input {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dispatch-select-arrow {
+    position: absolute;
+    right: 12px;
+    color: #9ca3af;
+    font-size: 12px;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+}
+
+.dispatch-searchable-select.active .dispatch-select-arrow {
+    transform: rotate(180deg);
+}
+
+.dispatch-select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    display: none;
+    max-height: 300px;
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+}
+
+.dispatch-searchable-select.dropup .dispatch-select-dropdown {
+    top: auto;
+    bottom: calc(100% + 4px);
+    box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.dispatch-searchable-select.active .dispatch-select-dropdown {
+    display: flex;
+}
+
+.dispatch-select-search {
+    padding: 12px;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.dispatch-search-input {
+    width: 100%;
+    padding: 6px 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #374151;
+    background: #f9fafb;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.dispatch-search-input:focus {
+    border-color: #3b82f6;
+    background: #ffffff;
+}
+
+.dispatch-select-options {
+    max-height: 220px;
+    overflow-y: auto;
+    padding: 8px;
+}
+
+.dispatch-select-option {
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.dispatch-select-option:hover {
+    background: #f3f4f6;
+}
+
+.dispatch-select-option.selected {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.dispatch-select-option-group {
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* 多选下拉框样式 */
+.dispatch-multi-select .dispatch-select-option.selected {
+    background: #eff6ff;
+}
+
+.dispatch-select-option-checkbox {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #d1d5db;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.dispatch-select-option.selected .dispatch-select-option-checkbox {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+.dispatch-select-option.selected .dispatch-select-option-checkbox::after {
+    content: '✓';
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.dispatch-select-option-label {
+    flex: 1;
+}
+
+/* ============================================
+   气泡确认框样式
+   ============================================ */
+
+.dispatch-popover-confirm .popover-content {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.dispatch-popover-confirm .popover-message {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.dispatch-popover-confirm .popover-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.dispatch-popover-confirm .popover-btn {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.dispatch-popover-confirm .popover-btn-cancel {
+    border: 1px solid #d1d5db;
+    background: #fff;
+    color: #374151;
+}
+
+.dispatch-popover-confirm .popover-btn-cancel:hover {
+    background: #f3f4f6;
+}
+
+.dispatch-popover-confirm .popover-btn-confirm {
+    border: none;
+    background: #3b82f6;
+    color: #fff;
+}
+
+.dispatch-popover-confirm .popover-btn-confirm:hover {
+    background: #2563eb;
+}
+
+.dispatch-popover-confirm .popover-arrow {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #fff;
+}
+
+/* ============================================
+   文字动画样式
+   ============================================ */
+
+.wp-text-animate {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.wp-text-animate.fading-out {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.wp-text-animate.fading-in {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.wp-text-animate.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ============================================
+   响应式适配
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .dispatch-detail-top {
+        flex-direction: column;
+    }
+
+    .dispatch-detail-info,
+    .dispatch-detail-content {
+        width: 100%;
+    }
+
+    .dispatch-appeal-textarea {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .dispatch-letter-list-panel {
+        width: 280px;
+    }
+
+    .dispatch-controls-row {
+        flex-direction: column;
+    }
+
+    .dispatch-searchable-select {
+        min-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .dispatch-main-content {
+        flex-direction: column;
+    }
+
+    .dispatch-letter-list-panel {
+        width: 100%;
+        max-height: 300px;
+    }
+
+    .dispatch-detail-top {
+        padding: 12px 16px;
+    }
+
+    .dispatch-detail-bottom {
+        padding: 12px 16px;
+    }
+
+    .dispatch-buttons-row {
+        flex-direction: column;
+    }
+
+    .dispatch-buttons-row .wp-btn-action {
+        width: 100%;
+    }
+}

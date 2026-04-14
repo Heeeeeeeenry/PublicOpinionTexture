@@ -1,0 +1,254 @@
+<!--
+所有信件页面 - 信件列表管理
+
+功能：
+- 显示所有信件列表
+- 分类搜索（一级、二级、三级分类）
+- 内容搜索（支持|分割关键字执行"或"搜索）
+- 分页显示（可选每页显示数量）
+- 新信件优先显示（按来信时间倒序）
+-->
+
+<div id="content-letters" class="h-full flex flex-col overflow-hidden">
+    <!-- 搜索筛选区域 -->
+    <div class="letters-header bg-white rounded-2xl shadow-sm p-6 mb-6 shrink-0">
+        <!-- 分类筛选 -->
+        <div class="flex gap-4 mb-4 flex-wrap">
+            <div class="flex flex-col gap-2 min-w-[180px]">
+                <label class="text-sm font-medium text-gray-700">一级分类</label>
+                <select id="letters-filter-level1" class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="window.workplaceController.controllers.letters.onCategoryChange(1)">
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <div class="flex flex-col gap-2 min-w-[180px]">
+                <label class="text-sm font-medium text-gray-700">二级分类</label>
+                <select id="letters-filter-level2" class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="window.workplaceController.controllers.letters.onCategoryChange(2)">
+                    <option value="">全部</option>
+                </select>
+            </div>
+            <div class="flex flex-col gap-2 min-w-[180px]">
+                <label class="text-sm font-medium text-gray-700">三级分类</label>
+                <select id="letters-filter-level3" class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="window.workplaceController.controllers.letters.onCategoryChange(3)">
+                    <option value="">全部</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 内容搜索 -->
+        <div class="mb-4">
+            <div class="relative flex items-center">
+                <i class="fas fa-search absolute left-4 text-gray-400"></i>
+                <input type="text" id="letters-search-input"
+                       class="flex-1 pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+                       placeholder='搜索内容（可用|分割多个关键字，执行"或"搜索）'>
+            </div>
+            <div class="flex items-center gap-2 mt-2 text-sm text-gray-500">
+                <i class="fas fa-info-circle text-blue-500"></i>
+                <span>提示：使用 | 分割多个关键字，如"噪音|污染"将搜索包含任一关键字的内容</span>
+            </div>
+        </div>
+
+        <!-- 状态筛选 -->
+        <div class="flex items-center gap-3 flex-wrap pt-4 border-t border-gray-100">
+            <span class="text-sm font-medium text-gray-700">信件状态：</span>
+            <div class="flex gap-2 flex-wrap" id="letters-status-filters">
+                <button class="px-4 py-2 bg-blue-600 text-white rounded-full text-sm font-medium transition" data-status="">全部</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="预处理">预处理</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="市局已签收">市局已签收</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="区县局已签收">区县局已签收</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="办理单位已签收">办理单位已签收</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="市局正在处理">市局正在处理</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="区县局正在处理">区县局正在处理</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="办理单位正在处理">办理单位正在处理</button>
+                <button class="px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium hover:bg-gray-200 transition" data-status="已办结">已办结</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 信件列表区域 -->
+    <div class="letters-filter-panel bg-white rounded-2xl shadow-sm flex-1 flex flex-col min-h-0">
+        <!-- 工具栏 -->
+        <div class="flex items-center p-4 border-b border-gray-100 shrink-0">
+            <span class="text-sm text-gray-500">
+                共 <strong class="text-blue-600 text-lg" id="letters-total-count">0</strong> 封信件
+            </span>
+        </div>
+
+        <!-- 信件列表表格 -->
+        <div class="flex-1 overflow-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600 w-[140px]">信件编号</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600 w-[120px]">分类</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600 w-[120px]">群众信息</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600 min-w-[300px]">诉求内容</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600 w-[140px]">来信时间</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600 w-[200px]">状态</th>
+                    </tr>
+                </thead>
+                <tbody id="letters-list-body" class="divide-y divide-gray-100">
+                    <!-- 动态加载信件列表 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 空状态 -->
+        <div id="letters-empty-state" class="hidden flex flex-col items-center justify-center py-20 text-gray-400">
+            <i class="fas fa-inbox text-6xl mb-4 opacity-30"></i>
+            <p class="text-lg">暂无符合条件的信件</p>
+        </div>
+
+        <!-- 分页 -->
+        <div class="p-4 border-t border-gray-100 flex items-center justify-between pagination-panel shrink-0" id="letters-pagination">
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-gray-500" id="pagination-info">共 0 条记录</span>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-500">每页显示：</label>
+                    <select id="page-size-select" class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" onchange="window.workplaceController.controllers.letters.onPageSizeChange()">
+                        <option value="10">10条</option>
+                        <option value="20" selected>20条</option>
+                        <option value="50">50条</option>
+                        <option value="100">100条</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-2" id="pagination-controls">
+                <!-- 分页按钮将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 信件详情弹窗 -->
+<div id="letter-detail-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center">
+    <div class="letter-detail-container bg-white rounded-2xl shadow-2xl w-[900px] max-w-[90vw] max-h-[85vh] flex flex-col overflow-hidden transform scale-95 opacity-0">
+        <!-- 弹窗头部 -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-envelope-open-text text-blue-600"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-800">信件详情</h3>
+                    <p class="text-sm text-gray-500" id="detail-letter-number">--</p>
+                </div>
+            </div>
+            <button id="btn-close-detail" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-gray-100 transition text-gray-400 hover:text-gray-600">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- 标签页导航 -->
+        <div class="flex border-b border-gray-100 px-6">
+            <button class="detail-tab-btn px-4 py-3 text-sm font-medium text-blue-600 border-b-2 border-blue-600 transition" data-tab="basic">
+                <i class="fas fa-info-circle mr-2"></i>基本信息
+            </button>
+            <button class="detail-tab-btn px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition" data-tab="flow">
+                <i class="fas fa-history mr-2"></i>流转记录
+            </button>
+            <button class="detail-tab-btn px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700 transition" data-tab="files">
+                <i class="fas fa-paperclip mr-2"></i>附件文件
+            </button>
+        </div>
+
+        <!-- 标签页内容区域 -->
+        <div class="flex-1 overflow-auto p-6">
+            <!-- 基本信息标签页 -->
+            <div id="tab-basic" class="detail-tab-content">
+                <!-- 基本信息卡片 -->
+                <div class="bg-gray-50 rounded-xl p-5 mb-5">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-user-circle text-blue-500 mr-2"></i>群众信息
+                    </h4>
+                    <div class="grid grid-cols-3 gap-4">
+                        <div class="bg-white rounded-lg p-3">
+                            <span class="text-xs text-gray-400 block mb-1">群众姓名</span>
+                            <input type="text" class="w-full text-sm font-medium text-gray-800 bg-transparent border-none outline-none focus:bg-blue-50 focus:ring-2 focus:ring-blue-200 rounded px-1 py-0.5 transition cursor-pointer" id="detail-name" readonly placeholder="-" title="点击可编辑">
+                        </div>
+                        <div class="bg-white rounded-lg p-3">
+                            <span class="text-xs text-gray-400 block mb-1">手机号</span>
+                            <input type="text" class="w-full text-sm font-medium text-gray-800 bg-transparent border-none outline-none focus:bg-blue-50 focus:ring-2 focus:ring-blue-200 rounded px-1 py-0.5 transition cursor-pointer" id="detail-phone" readonly placeholder="-" title="点击可编辑">
+                        </div>
+                        <div class="bg-white rounded-lg p-3">
+                            <span class="text-xs text-gray-400 block mb-1">身份证号</span>
+                            <input type="text" class="w-full text-sm font-medium text-gray-800 bg-transparent border-none outline-none focus:bg-blue-50 focus:ring-2 focus:ring-blue-200 rounded px-1 py-0.5 transition cursor-pointer" id="detail-idcard" readonly placeholder="-" title="点击可编辑">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 信件信息卡片 -->
+                <div class="bg-gray-50 rounded-xl p-5 mb-5">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-envelope text-blue-500 mr-2"></i>信件信息
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div class="bg-white rounded-lg p-3">
+                            <span class="text-xs text-gray-400 block mb-1">来信时间</span>
+                            <input type="text" class="w-full text-sm font-medium text-gray-800 bg-transparent border-none outline-none focus:bg-blue-50 focus:ring-2 focus:ring-blue-200 rounded px-1 py-0.5 transition cursor-pointer animate-text" id="detail-time" readonly placeholder="-" title="点击可编辑">
+                        </div>
+                        <div class="bg-white rounded-lg p-3">
+                            <span class="text-xs text-gray-400 block mb-1">来信渠道</span>
+                            <span class="text-sm font-medium text-gray-800" id="detail-channel">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3 mb-4">
+                        <span class="text-xs text-gray-400 block mb-1">信件分类</span>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs" id="detail-level1">--</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                            <span class="px-2 py-1 bg-blue-50 text-blue-600 rounded text-xs" id="detail-level2">--</span>
+                            <i class="fas fa-chevron-right text-gray-300 text-xs"></i>
+                            <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs" id="detail-level3">--</span>
+                        </div>
+                    </div>
+                    <div class="bg-white rounded-lg p-3">
+                        <span class="text-xs text-gray-400 block mb-1">诉求内容</span>
+                        <textarea class="w-full text-sm text-gray-700 mt-1 leading-relaxed bg-transparent border-none outline-none focus:bg-blue-50 focus:ring-2 focus:ring-blue-200 rounded px-1 py-0.5 transition cursor-pointer resize-none" id="detail-content" readonly placeholder="-" title="点击可编辑" rows="3"></textarea>
+                    </div>
+                </div>
+
+                <!-- 处理信息卡片 -->
+                <div class="bg-gray-50 rounded-xl p-5 mb-5">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-tasks text-blue-500 mr-2"></i>处理信息
+                    </h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white rounded-lg p-3">
+                            <span class="text-xs text-gray-400 block mb-1">当前状态</span>
+                            <span class="text-sm font-medium text-gray-800" id="detail-status">--</span>
+                        </div>
+                        <div class="bg-white rounded-lg p-3">
+                            <span class="text-xs text-gray-400 block mb-1">当前处理单位</span>
+                            <span class="text-sm font-medium text-gray-800" id="detail-unit">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 专项关注标签 -->
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h4 class="text-sm font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-tags text-blue-500 mr-2"></i>专项关注标签
+                    </h4>
+                    <div class="flex flex-wrap gap-2" id="detail-special-focus">
+                        <span class="text-sm text-gray-400">无</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 流转记录标签页 -->
+            <div id="tab-flow" class="detail-tab-content hidden">
+                <div class="flow-timeline relative pl-8" id="detail-flow-list">
+                    <!-- 流转记录将通过JS动态生成 -->
+                </div>
+            </div>
+
+            <!-- 附件文件标签页 -->
+            <div id="tab-files" class="detail-tab-content hidden">
+                <div class="space-y-4" id="detail-files-list">
+                    <!-- 附件列表将通过JS动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,122 @@
+/**
+ * 首页额外样式
+ *
+ * 用于背景装饰等通用样式中未定义的元素
+ * 尽量使用通用样式，只补充必要的额外样式
+ */
+
+/* ============================================
+   背景装饰元素
+   ============================================ */
+
+/**
+ * 背景装饰容器
+ */
+.home-bg-decoration {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+}
+
+/**
+ * 浮动形状
+ */
+.home-floating-shape {
+    position: absolute;
+    border-radius: 50%;
+    opacity: 0.03;
+    background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+}
+
+.home-floating-shape.shape-1 {
+    width: 400px;
+    height: 400px;
+    top: -100px;
+    right: -100px;
+}
+
+.home-floating-shape.shape-2 {
+    width: 300px;
+    height: 300px;
+    bottom: 10%;
+    left: -50px;
+}
+
+.home-floating-shape.shape-3 {
+    width: 200px;
+    height: 200px;
+    top: 40%;
+    right: 10%;
+}
+
+.home-floating-shape.shape-4 {
+    width: 150px;
+    height: 150px;
+    bottom: 20%;
+    right: 20%;
+}
+
+/* ============================================
+   欢迎区域样式补充
+   ============================================ */
+
+/**
+ * 问候语行
+ */
+.greeting-line {
+    opacity: 1;
+}
+
+/**
+ * 欢迎标题
+ */
+.welcome-title {
+    opacity: 1;
+}
+
+/**
+ * 欢迎副标题
+ */
+.welcome-subtitle {
+    opacity: 1;
+}
+
+/* ============================================
+   筛选标签圆点样式
+   ============================================ */
+
+/**
+ * 筛选标签内的圆点
+ * 激活状态下变为绿色
+ */
+.wp-filter-chip.active .w-1\.5 {
+    background-color: #34d399;
+    box-shadow: 0 0 8px #34d399;
+}
+
+/* ============================================
+   响应式适配
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .home-floating-shape.shape-1 {
+        width: 300px;
+        height: 300px;
+    }
+
+    .home-floating-shape.shape-2 {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+@media (max-width: 768px) {
+    .home-floating-shape {
+        display: none;
+    }
+}

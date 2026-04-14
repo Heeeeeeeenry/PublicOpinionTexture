@@ -1,0 +1,180 @@
+<!--
+首页内容 - 灵动优雅设计
+
+使用白色、灰色为主色调，配合 anime.js 实现绚丽的入场动画和交互动画
+营造现代、专业且充满活力的视觉体验
+-->
+<!-- CSS 文件 -->
+<link rel="stylesheet" href="/static/css/workplace/home/home.css">
+
+<div id="content-home" class="content-section min-h-full">
+    <!-- 背景装饰元素 -->
+    <div class="bg-decoration">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+    </div>
+
+    <!-- 顶部欢迎区域 -->
+    <div class="welcome-banner mb-6">
+        <div class="flex items-center justify-between">
+            <div class="welcome-text">
+                <div class="greeting-line">
+                    <span class="greeting-emoji">👋</span>
+                    <span class="greeting-text" id="greeting-text">早上好</span>
+                </div>
+                <h1 class="welcome-title">
+                    欢迎回来，<span id="user-display-name" class="user-name">未知用户</span>
+                </h1>
+                <p class="welcome-subtitle">今天是美好的一天，让我们一起高效工作</p>
+            </div>
+            <div class="quick-stats">
+                <div class="time-card">
+                    <div class="time-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="time-content">
+                        <span class="time-date" id="header-date">2024年1月1日</span>
+                        <span class="time-realtime" id="header-realtime">00:00:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 时间范围筛选面板 -->
+    <div class="time-filter-panel mb-8">
+        <div class="time-filter-content">
+            <div class="time-filter-icon">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="time-filter-label">时间范围</div>
+            <div class="time-filters-row">
+                <button class="time-filter-chip active" data-period="day">
+                    <span class="chip-dot"></span>
+                    <span>当天</span>
+                </button>
+                <button class="time-filter-chip" data-period="week">
+                    <span class="chip-dot"></span>
+                    <span>本周</span>
+                </button>
+                <button class="time-filter-chip" data-period="month">
+                    <span class="chip-dot"></span>
+                    <span>本月</span>
+                </button>
+                <button class="time-filter-chip" data-period="year">
+                    <span class="chip-dot"></span>
+                    <span>本年</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 统计卡片区域 -->
+    <div class="stats-container mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- 信件总量 -->
+            <div class="stat-card" data-index="0">
+                <div class="stat-card-inner">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-header">
+                        <div class="stat-icon-wrapper blue">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="stat-trend up">
+                            <i class="fas fa-arrow-trend-up"></i>
+                            <span>实时</span>
+                        </div>
+                    </div>
+                    <div class="stat-body">
+                        <p class="stat-label">信件总量</p>
+                        <h3 class="stat-value" id="home-total-count">0</h3>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="progress-track">
+                            <div class="progress-fill blue" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 预处理 -->
+            <div class="stat-card" data-index="1">
+                <div class="stat-card-inner">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-header">
+                        <div class="stat-icon-wrapper gray">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <div class="stat-trend info">
+                            <i class="fas fa-robot"></i>
+                            <span>AI</span>
+                        </div>
+                    </div>
+                    <div class="stat-body">
+                        <p class="stat-label">预处理</p>
+                        <h3 class="stat-value" id="home-preprocessing-count">0</h3>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="progress-track">
+                            <div class="progress-fill gray" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 正在处理 -->
+            <div class="stat-card" data-index="2">
+                <div class="stat-card-inner">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-header">
+                        <div class="stat-icon-wrapper yellow">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-trend yellow">
+                            <i class="fas fa-spinner"></i>
+                            <span>处理</span>
+                        </div>
+                    </div>
+                    <div class="stat-body">
+                        <p class="stat-label">正在处理</p>
+                        <h3 class="stat-value" id="home-processing-count">0</h3>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="progress-track">
+                            <div class="progress-fill yellow" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 正在反馈 -->
+            <div class="stat-card" data-index="3">
+                <div class="stat-card-inner">
+                    <div class="stat-card-glow"></div>
+                    <div class="stat-header">
+                        <div class="stat-icon-wrapper green">
+                            <i class="fas fa-reply"></i>
+                        </div>
+                        <div class="stat-trend success">
+                            <i class="fas fa-comments"></i>
+                            <span>反馈</span>
+                        </div>
+                    </div>
+                    <div class="stat-body">
+                        <p class="stat-label">正在反馈</p>
+                        <h3 class="stat-value" id="home-feedbacking-count">0</h3>
+                    </div>
+                    <div class="stat-footer">
+                        <div class="progress-track">
+                            <div class="progress-fill green" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</div>

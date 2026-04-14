@@ -1,0 +1,2596 @@
+/**
+ * Workplace 工作台通用样式
+ *
+ * 本文件定义了民意质感系统业务界面的所有通用样式类
+ * 包括：面板、按钮、表单、表格、状态标签、动画等
+ * 设计原则：统一、简洁、圆角、现代化
+ */
+
+/* ============================================
+   基础重置与全局样式
+   ============================================ */
+
+/**
+ * 页面基础重置
+ * 确保页面可以正确计算高度，清除默认边距
+ */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+/**
+ * 工作台容器初始隐藏
+ * 加载动画显示时，工作台不可见
+ */
+.workplace-container {
+    opacity: 0;
+    transition: opacity 0.5s ease-in;
+}
+
+/**
+ * 工作台淡入完成状态
+ */
+body.fade-in .workplace-container {
+    opacity: 1;
+}
+
+/* ============================================
+   页面加载动画（风车）
+   ============================================ */
+
+/**
+ * 加载遮罩层
+ */
+.page-loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f0f9ff 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    transition: opacity 0.6s ease-out, visibility 0.6s ease-out;
+}
+
+.page-loading-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+}
+
+/**
+ * 风车容器
+ */
+.loading-pinwheel {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/**
+ * 风车主体（中心轴 + 两个叶片）
+ * 对应SCSS中的 #loading3
+ */
+.pinwheel-blade {
+    display: block;
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform-origin: 50% 50%;
+    background: #F7A072;
+    height: 48px;
+    width: 3px;
+    border-bottom-right-radius: 32px;
+    border-bottom-left-radius: 32px;
+    margin-left: -1.5px;
+}
+
+/**
+ * 叶片1（::before）
+ * 对应SCSS中的 &::before
+ */
+.pinwheel-blade::before {
+    display: block;
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: -6px;
+    width: 16px;
+    height: 40px;
+    background: #22c55e;
+    transform: rotate(-45deg);
+    border-bottom-left-radius: 32px;
+    border-top-right-radius: 32px;
+    animation: pinwheel-blade-a 2s linear infinite;
+}
+
+/**
+ * 叶片2（::after）
+ * 对应SCSS中的 &::after
+ */
+.pinwheel-blade::after {
+    display: block;
+    content: '';
+    position: absolute;
+    top: -16px;
+    left: -6px;
+    width: 16px;
+    height: 40px;
+    background: #22c55e;
+    transform: rotate(45deg);
+    border-bottom-left-radius: 32px;
+    border-top-right-radius: 32px;
+    animation: pinwheel-blade-b 2s linear infinite;
+}
+
+/**
+ * 风车中心圆点
+ */
+.pinwheel-center {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #1d4ed8;
+    border-radius: 50%;
+    left: 50%;
+    bottom: 0;
+    transform: translate(-50%, 50%);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    z-index: 1;
+}
+
+/**
+ * 加载文字
+ */
+.loading-text {
+    font-size: 14px;
+    color: #3b82f6;
+    font-weight: 500;
+    letter-spacing: 2px;
+    animation: loading-pulse 1.5s ease-in-out infinite;
+    margin-top: 80px;
+}
+
+/**
+ * 风车旋转动画
+ * 对应SCSS中的 @include keyframes(loading3b)
+ */
+@keyframes pinwheel-blade-a {
+    0% {
+        transform: rotate(-45deg);
+    }
+    100% {
+        transform: rotate(680deg);
+    }
+}
+
+/**
+ * 对应SCSS中的 @include keyframes(loading3a)
+ */
+@keyframes pinwheel-blade-b {
+    0% {
+        transform: rotate(45deg);
+    }
+    100% {
+        transform: rotate(765deg);
+    }
+}
+
+@keyframes loading-pulse {
+    0%, 100% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   工作台固定布局样式
+   ============================================ */
+
+/**
+ * 工作台容器
+ * 固定定位，占满整个视口
+ * 标题高度：80px
+ * 左侧菜单宽度：200px
+ * 右侧内容区域：剩余宽度
+ */
+.workplace-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+/**
+ * 顶部标题栏
+ * 固定高度80px
+ */
+.workplace-header {
+    height: 60px;
+    flex-shrink: 0;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+}
+
+/**
+ * 主体区域
+ * flex布局，占据标题栏下方的剩余空间
+ */
+.workplace-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+/**
+ * 左侧菜单栏
+ * 固定宽度250px
+ */
+.workplace-sidebar {
+    width: 200px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-right: 1px solid #e5e7eb;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+/**
+ * 右侧内容区域
+ * flex: 1 占据剩余宽度
+ */
+.workplace-content {
+    flex: 1;
+    overflow: auto;
+    background: #f3f4f6;
+    padding: 24px;
+}
+
+/* ============================================
+   布局相关样式（旧版兼容）
+   ============================================ */
+
+/**
+ * 侧边栏基础样式
+ * 定义侧边栏的过渡动画效果
+ */
+.sidebar {
+    transition: transform 0.3s ease-in-out;
+}
+
+/**
+ * 侧边栏关闭状态
+ * 将侧边栏向左移出视口
+ */
+.sidebar.closed {
+    transform: translateX(-100%);
+}
+
+/**
+ * 工作区内容区域
+ * 定义边距过渡动画，配合侧边栏展开/收起
+ */
+.workspace {
+    transition: margin-left 0.3s ease-in-out;
+}
+
+/**
+ * 页面容器
+ * 用于包裹整个页面内容，设置高度和溢出处理
+ */
+.page-container {
+    height: 100%;
+    overflow: hidden;
+}
+
+/**
+ * 内容区域
+ * 用于页面主要内容的最小高度设置
+ */
+.content-section {
+    min-height: 100%;
+}
+
+/* ============================================
+   面板组件样式 (Panel)
+   ============================================ */
+
+/**
+ * 基础面板样式
+ * 白色背景、圆角、阴影效果
+ * 所有面板的基准样式
+ */
+.wp-panel {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 30px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/**
+ * 面板悬停效果
+ * 增强阴影，提升视觉层次
+ */
+.wp-panel:hover {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 16px 40px rgba(0, 0, 0, 0.05);
+}
+
+/**
+ * 面板头部
+ * 包含标题和操作按钮的区域
+ */
+.wp-panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f3f4f6;
+    background: linear-gradient(to right, #ffffff, #fafafa);
+}
+
+/**
+ * 紧凑模式面板头部
+ * 减小内边距，用于空间有限的场景
+ */
+.wp-panel-header.compact {
+    padding: 16px 20px;
+}
+
+/**
+ * 面板标题组
+ * 包含图标和标题文字的容器
+ */
+.wp-panel-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/**
+ * 面板图标
+ * 标题左侧的图标容器
+ */
+.wp-panel-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4b5563;
+    font-size: 16px;
+}
+
+/**
+ * 小型面板图标
+ * 用于次要标题或紧凑布局
+ */
+.wp-panel-icon.small {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+    border-radius: 10px;
+}
+
+/**
+ * 灰色面板图标
+ * 用于非激活状态的图标
+ */
+.wp-panel-icon.gray {
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+/**
+ * 面板标题内容区
+ * 包含主标题和副标题
+ */
+.wp-panel-title-content {
+    display: flex;
+    flex-direction: column;
+}
+
+/**
+ * 面板主标题
+ */
+.wp-panel-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+/**
+ * 面板副标题
+ */
+.wp-panel-subtitle {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 2px;
+}
+
+/**
+ * 面板内容区
+ * 面板的主体内容容器
+ */
+.wp-panel-body {
+    padding: 20px 24px;
+}
+
+/**
+ * 紧凑模式面板内容区
+ */
+.wp-panel-body.compact {
+    padding: 16px 20px;
+}
+
+/**
+ * 渐变顶部面板
+ * 顶部带有渐变装饰线的面板
+ */
+.wp-panel-gradient-top {
+    position: relative;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%);
+    border-radius: 24px;
+    padding: 32px 40px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 40px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+}
+
+/**
+ * 渐变顶部装饰线
+ */
+.wp-panel-gradient-top::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
+    opacity: 0.6;
+}
+
+/* ============================================
+   头部区域样式 (Header)
+   ============================================ */
+
+/**
+ * 页面头部容器
+ * 用于各功能页面的标题区域
+ */
+.wp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(135deg, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%);
+    border-radius: 16px;
+    padding: 16px 24px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    flex-shrink: 0;
+}
+
+/**
+ * 头部左侧区域
+ */
+.wp-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/**
+ * 头部图标
+ */
+.wp-header-icon {
+    width: 48px;
+    height: 48px;
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #2563eb;
+}
+
+/**
+ * 头部内容区
+ */
+.wp-header-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+/**
+ * 头部标题
+ */
+.wp-header-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+}
+
+/**
+ * 头部副标题
+ */
+.wp-header-subtitle {
+    font-size: 12px;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/**
+ * 头部右侧区域
+ */
+.wp-header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+/* ============================================
+   按钮组件样式 (Button)
+   ============================================ */
+
+/**
+ * 基础按钮样式
+ * 所有按钮的基准样式
+ */
+.wp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+/**
+ * 主要按钮 - 蓝色
+ * 用于主要操作
+ */
+.wp-btn-primary {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    color: #ffffff;
+}
+
+.wp-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+}
+
+.wp-btn-primary:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/**
+ * 次要按钮 - 灰色
+ * 用于取消、返回等操作
+ */
+.wp-btn-secondary {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.wp-btn-secondary:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+/**
+ * 成功按钮 - 绿色
+ * 用于提交、确认等正向操作
+ */
+.wp-btn-success {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.wp-btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+}
+
+/**
+ * 危险按钮 - 红色
+ * 用于删除、退回等警示操作
+ */
+.wp-btn-danger {
+    background: linear-gradient(135deg, #f97316, #ea580c);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(234, 88, 12, 0.3);
+}
+
+.wp-btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(234, 88, 12, 0.4);
+}
+
+/**
+ * 警告按钮 - 橙/灰色
+ * 用于不属实等状态操作
+ */
+.wp-btn-warning {
+    background: linear-gradient(135deg, #6b7280, #4b5563);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(75, 85, 99, 0.3);
+}
+
+.wp-btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(75, 85, 99, 0.4);
+}
+
+/**
+ * 操作按钮 - 大尺寸
+ * 用于页面底部的主要操作
+ */
+.wp-btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    min-width: 120px;
+}
+
+/**
+ * 面板操作按钮
+ * 用于面板头部的操作
+ */
+.wp-panel-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.wp-panel-action-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #1f2937;
+    transform: translateX(2px);
+}
+
+.wp-panel-action-btn i {
+    font-size: 11px;
+    transition: transform 0.3s ease;
+}
+
+.wp-panel-action-btn:hover i {
+    transform: translateX(3px);
+}
+
+/**
+ * 快捷操作卡片按钮
+ * 用于首页快捷操作区域
+ */
+.wp-action-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    padding: 20px 16px;
+    background: #f9fafb;
+    border: 1px solid transparent;
+    border-radius: 16px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-action-card:hover {
+    transform: translateY(-2px);
+}
+
+.wp-action-card[data-color="blue"]:hover {
+    background: #eff6ff;
+    border-color: #dbeafe;
+}
+
+.wp-action-card[data-color="green"]:hover {
+    background: #f0fdf4;
+    border-color: #d1fae5;
+}
+
+.wp-action-card[data-color="purple"]:hover {
+    background: #faf5ff;
+    border-color: #ede9fe;
+}
+
+.wp-action-card[data-color="amber"]:hover {
+    background: #fffbeb;
+    border-color: #fef3c7;
+}
+
+/**
+ * 快捷操作卡片图标
+ */
+.wp-action-icon {
+    width: 44px;
+    height: 44px;
+    background: #ffffff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.wp-action-card[data-color="blue"] .wp-action-icon {
+    color: #3b82f6;
+}
+
+.wp-action-card[data-color="green"] .wp-action-icon {
+    color: #10b981;
+}
+
+.wp-action-card[data-color="purple"] .wp-action-icon {
+    color: #8b5cf6;
+}
+
+.wp-action-card[data-color="amber"] .wp-action-icon {
+    color: #f59e0b;
+}
+
+.wp-action-card:hover .wp-action-icon {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/**
+ * 快捷操作卡片标签
+ */
+.wp-action-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #4b5563;
+    transition: color 0.3s ease;
+}
+
+.wp-action-card[data-color="blue"]:hover .wp-action-label {
+    color: #2563eb;
+}
+
+.wp-action-card[data-color="green"]:hover .wp-action-label {
+    color: #059669;
+}
+
+.wp-action-card[data-color="purple"]:hover .wp-action-label {
+    color: #7c3aed;
+}
+
+.wp-action-card[data-color="amber"]:hover .wp-action-label {
+    color: #d97706;
+}
+
+/**
+ * 筛选标签按钮
+ * 用于状态筛选、时间筛选等
+ */
+.wp-filter-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #f3f4f6;
+    border: 1px solid transparent;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-filter-chip:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.wp-filter-chip.active {
+    background: #111827;
+    color: #ffffff;
+    border-color: #111827;
+}
+
+/**
+ * 状态筛选按钮组中的按钮
+ */
+.wp-status-filter-btn {
+    padding: 8px 16px;
+    background: #f3f4f6;
+    border: none;
+    border-radius: 9999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wp-status-filter-btn:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+.wp-status-filter-btn.active {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+/**
+ * 备注按钮
+ */
+.wp-remark-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.wp-remark-btn:hover {
+    background: linear-gradient(135deg, #e5e7eb, #d1d5db);
+    border-color: #9ca3af;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wp-remark-btn:active {
+    transform: translateY(0);
+}
+
+.wp-remark-btn i {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* ============================================
+   表单组件样式 (Form)
+   ============================================ */
+
+/**
+ * 表单输入框基础样式
+ */
+.wp-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #374151;
+    background: #ffffff;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.wp-input:hover {
+    border-color: #d1d5db;
+}
+
+.wp-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.wp-input::placeholder {
+    color: #9ca3af;
+}
+
+/**
+ * 搜索输入框
+ * 带搜索图标的输入框
+ */
+.wp-input-search {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.wp-input-search input {
+    flex: 1;
+    padding-left: 44px;
+}
+
+.wp-input-search i {
+    position: absolute;
+    left: 16px;
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+/**
+ * 表单文本域
+ */
+.wp-textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 10px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #374151;
+    resize: vertical;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.wp-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.wp-textarea::placeholder {
+    color: #9ca3af;
+}
+
+/**
+ * 表单选择框
+ */
+.wp-select {
+    width: 100%;
+    height: 40px;
+    padding: 0 32px 0 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 13px;
+    color: #374151;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%239ca3af' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+}
+
+.wp-select:hover {
+    border-color: #d1d5db;
+}
+
+.wp-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/**
+ * 表单标签
+ */
+.wp-form-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.wp-form-label i {
+    color: #6b7280;
+}
+
+/**
+ * 表单组
+ */
+.wp-form-group {
+    margin-bottom: 16px;
+}
+
+/**
+ * 可编辑字段样式
+ * 点击可编辑的字段显示效果
+ */
+.wp-editable-field {
+    width: 100%;
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    color: #1f2937;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    border-radius: 0.25rem;
+    padding: 0.125rem 0.25rem;
+    transition: all 0.15s ease;
+    cursor: pointer;
+}
+
+.wp-editable-field:focus {
+    background: #eff6ff;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+/* ============================================
+   表格组件样式 (Table)
+   ============================================ */
+
+/**
+ * 基础表格样式
+ */
+.wp-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/**
+ * 表格头部
+ */
+.wp-table thead {
+    background: #f9fafb;
+}
+
+.wp-table thead tr {
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.wp-table th {
+    padding: 14px 16px;
+    text-align: left;
+    font-size: 13px;
+    font-weight: 600;
+    color: #4b5563;
+    white-space: nowrap;
+}
+
+/**
+ * 表格主体
+ */
+.wp-table tbody tr {
+    border-bottom: 1px solid #f3f4f6;
+    transition: background 0.2s ease;
+}
+
+.wp-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+.wp-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.wp-table td {
+    padding: 14px 16px;
+    font-size: 13px;
+    color: #374151;
+    vertical-align: middle;
+}
+
+/**
+ * 表格行选中状态
+ */
+.wp-table tbody tr.active {
+    background: #eff6ff;
+}
+
+/**
+ * 表格单元格内容省略
+ */
+.wp-table .cell-ellipsis {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/**
+ * 表格空状态
+ */
+.wp-table-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.wp-table-empty i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.wp-table-empty p {
+    font-size: 14px;
+}
+
+/* ============================================
+   统计卡片样式 (Stat Card)
+   ============================================ */
+
+/**
+ * 统计卡片容器
+ */
+.wp-stat-card {
+    position: relative;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 24px;
+    border: 1px solid rgba(229, 231, 235, 0.8);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 30px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02), 0 20px 40px rgba(0, 0, 0, 0.06);
+}
+
+/**
+ * 统计卡片光晕效果
+ */
+.wp-stat-card-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.03) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.wp-stat-card:hover .wp-stat-card-glow {
+    opacity: 1;
+}
+
+/**
+ * 统计卡片头部
+ */
+.wp-stat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+/**
+ * 统计图标容器
+ */
+.wp-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s ease;
+}
+
+.wp-stat-card:hover .wp-stat-icon {
+    transform: scale(1.1) rotate(5deg);
+}
+
+/**
+ * 统计图标颜色变体
+ */
+.wp-stat-icon.blue {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #2563eb;
+}
+
+.wp-stat-icon.amber {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #d97706;
+}
+
+.wp-stat-icon.green {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #059669;
+}
+
+.wp-stat-icon.purple {
+    background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+    color: #7c3aed;
+}
+
+.wp-stat-icon.gray {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    color: #6b7280;
+}
+
+.wp-stat-icon.orange {
+    background: linear-gradient(135deg, #ffedd5, #fed7aa);
+    color: #ea580c;
+}
+
+.wp-stat-icon.teal {
+    background: linear-gradient(135deg, #ccfbf1, #99f6e4);
+    color: #0d9488;
+}
+
+.wp-stat-icon.red {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #dc2626;
+}
+
+.wp-stat-icon.yellow {
+    background: linear-gradient(135deg, #fef9c3, #fde047);
+    color: #ca8a04;
+}
+
+/**
+ * 统计趋势标签
+ */
+.wp-stat-trend {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.wp-stat-trend.up {
+    background: #ecfdf5;
+    color: #059669;
+}
+
+.wp-stat-trend.warning {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.wp-stat-trend.success {
+    background: #f0fdf4;
+    color: #16a34a;
+}
+
+.wp-stat-trend.excellent {
+    background: #faf5ff;
+    color: #7c3aed;
+}
+
+.wp-stat-trend.info {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.wp-stat-trend.processing {
+    background: #fff7ed;
+    color: #ea580c;
+}
+
+.wp-stat-trend.feedback {
+    background: #f0fdfa;
+    color: #0d9488;
+}
+
+.wp-stat-trend.red {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.wp-stat-trend.yellow {
+    background: #fefce8;
+    color: #ca8a04;
+}
+
+/**
+ * 统计内容区
+ */
+.wp-stat-body {
+    margin-bottom: 16px;
+}
+
+.wp-stat-label {
+    font-size: 13px;
+    color: #9ca3af;
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.wp-stat-value {
+    font-size: 32px;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1;
+}
+
+.wp-stat-value .unit {
+    font-size: 18px;
+    font-weight: 600;
+    color: #6b7280;
+    margin-left: 2px;
+}
+
+/**
+ * 统计进度条
+ */
+.wp-stat-progress {
+    height: 4px;
+    background: #f3f4f6;
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.wp-stat-progress-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.wp-stat-progress-bar.blue {
+    background: linear-gradient(90deg, #3b82f6, #60a5fa);
+}
+
+.wp-stat-progress-bar.amber {
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+}
+
+.wp-stat-progress-bar.green {
+    background: linear-gradient(90deg, #10b981, #34d399);
+}
+
+.wp-stat-progress-bar.purple {
+    background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+}
+
+.wp-stat-progress-bar.gray {
+    background: linear-gradient(90deg, #9ca3af, #d1d5db);
+}
+
+.wp-stat-progress-bar.orange {
+    background: linear-gradient(90deg, #f97316, #fb923c);
+}
+
+.wp-stat-progress-bar.teal {
+    background: linear-gradient(90deg, #14b8a6, #2dd4bf);
+}
+
+.wp-stat-progress-bar.red {
+    background: linear-gradient(90deg, #ef4444, #f87171);
+}
+
+.wp-stat-progress-bar.yellow {
+    background: linear-gradient(90deg, #eab308, #facc15);
+}
+
+/**
+ * 统计数字徽章
+ * 用于头部显示数量
+ */
+.wp-count-badge {
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #eff6ff, #dbeafe);
+    border-radius: 12px;
+}
+
+.wp-count-value {
+    font-size: 24px;
+    font-weight: 800;
+    color: #2563eb;
+    line-height: 1;
+}
+
+.wp-count-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* ============================================
+   状态标签样式 (Status Badge)
+   ============================================ */
+
+/**
+ * 基础状态标签
+ */
+.wp-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.wp-badge.blue {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.wp-badge.green {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.wp-badge.yellow {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.wp-badge.red {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.wp-badge.gray {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.wp-badge.purple {
+    background: #ede9fe;
+    color: #5b21b6;
+}
+
+/**
+ * 信件状态标签
+ */
+.wp-status-badge {
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.wp-status-badge.new {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.wp-status-badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.wp-status-badge.processing {
+    background: #fff7ed;
+    color: #c2410c;
+}
+
+.wp-status-badge.completed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.wp-status-badge.rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* ============================================
+   列表项样式 (List Item)
+   ============================================ */
+
+/**
+ * 信件列表项
+ */
+.wp-list-item {
+    padding: 14px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    margin-bottom: 10px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wp-list-item:hover {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/**
+ * 列表项选中状态
+ */
+.wp-list-item.active {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    border: 2px solid #3b82f6;
+    box-shadow: 0 4px 16px rgba(59, 130, 246, 0.25);
+}
+
+/**
+ * 列表项流光动画
+ */
+.wp-list-item.active::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(59, 130, 246, 0.15),
+        rgba(147, 197, 253, 0.25),
+        rgba(59, 130, 246, 0.15),
+        transparent
+    );
+    animation: wp-streamer-flow 2.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes wp-streamer-flow {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+/**
+ * 列表项左侧指示条
+ */
+.wp-list-item.active::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 60%;
+    background: linear-gradient(180deg, #3b82f6, #60a5fa);
+    border-radius: 0 4px 4px 0;
+    animation: wp-indicator-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes wp-indicator-pulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 16px rgba(59, 130, 246, 0.8);
+    }
+}
+
+/**
+ * 列表项图标
+ */
+.wp-list-item-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.wp-list-item-icon.blue {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #2563eb;
+}
+
+.wp-list-item-icon.amber {
+    background: linear-gradient(135deg, #fef3c7, #fde68a);
+    color: #d97706;
+}
+
+.wp-list-item-icon.green {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #059669;
+}
+
+/* ============================================
+   信息展示样式 (Info Display)
+   ============================================ */
+
+/**
+ * 信息行
+ * 用于展示标签和值的对
+ */
+.wp-info-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+}
+
+.wp-info-row i {
+    font-size: 14px;
+    color: #6b7280;
+    width: 18px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.wp-info-label {
+    font-size: 12px;
+    color: #6b7280;
+    font-weight: 500;
+    min-width: 70px;
+}
+
+.wp-info-value {
+    font-size: 13px;
+    color: #374151;
+    font-weight: 500;
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/**
+ * 信息卡片
+ * 用于分组展示相关信息
+ */
+.wp-info-card {
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+}
+
+.wp-info-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/**
+ * 分类路径展示
+ * 用于展示分类层级关系
+ */
+.wp-category-path {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.wp-category-item {
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.wp-category-item.level1 {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.wp-category-item.level2 {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.wp-category-item.level3 {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.wp-category-separator {
+    color: #d1d5db;
+    font-size: 12px;
+}
+
+/* ============================================
+   分页组件样式 (Pagination)
+   ============================================ */
+
+/**
+ * 分页容器
+ */
+.wp-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-top: 1px solid #f3f4f6;
+}
+
+/**
+ * 分页信息
+ */
+.wp-pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.wp-pagination-text {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.wp-pagination-text strong {
+    color: #2563eb;
+    font-size: 16px;
+}
+
+/**
+ * 分页控制按钮组
+ */
+.wp-pagination-controls {
+    display: flex;
+    gap: 8px;
+}
+
+/**
+ * 分页按钮
+ */
+.wp-page-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff;
+    font-size: 13px;
+    color: #4b5563;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wp-page-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.wp-page-btn.active {
+    background: #3b82f6;
+    border-color: #3b82f6;
+    color: #ffffff;
+}
+
+.wp-page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ============================================
+   弹窗组件样式 (Modal)
+   ============================================ */
+
+/**
+ * 弹窗遮罩层
+ */
+.wp-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 24px;
+}
+
+/**
+ * 弹窗容器
+ */
+.wp-modal-container {
+    background: #ffffff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    display: flex;
+    flex-direction: column;
+}
+
+/**
+ * 大尺寸弹窗
+ */
+.wp-modal-container.large {
+    max-width: 900px;
+}
+
+/**
+ * 弹窗头部
+ */
+.wp-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    background: linear-gradient(to right, #ffffff, #fafafa);
+}
+
+.wp-modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.wp-modal-title i {
+    color: #3b82f6;
+    font-size: 18px;
+}
+
+.wp-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #f3f4f6;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.wp-modal-close:hover {
+    background: #e5e7eb;
+    color: #374151;
+}
+
+/**
+ * 弹窗内容区
+ */
+.wp-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/**
+ * 弹窗底部
+ */
+.wp-modal-footer {
+    display: flex;
+    gap: 10px;
+    padding: 12px 20px;
+    border-top: 1px solid #f3f4f6;
+    background: #fafafa;
+}
+
+.wp-modal-footer .wp-btn {
+    flex: 1;
+}
+
+/* ============================================
+   标签页组件样式 (Tabs)
+   ============================================ */
+
+/**
+ * 标签页导航
+ */
+.wp-tabs-nav {
+    display: flex;
+    border-bottom: 1px solid #e5e7eb;
+    padding: 0 20px;
+}
+
+/**
+ * 标签页按钮
+ */
+.wp-tab-btn {
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #6b7280;
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.wp-tab-btn:hover {
+    color: #374151;
+}
+
+.wp-tab-btn.active {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+}
+
+.wp-tab-btn i {
+    font-size: 14px;
+}
+
+/**
+ * 标签页内容区
+ */
+.wp-tab-content {
+    display: none;
+}
+
+.wp-tab-content.active {
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================
+   时间线组件样式 (Timeline)
+   ============================================ */
+
+/**
+ * 时间线容器
+ */
+.wp-timeline {
+    position: relative;
+    padding-left: 24px;
+}
+
+.wp-timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #e5e7eb;
+}
+
+/**
+ * 时间线项目
+ */
+.wp-timeline-item {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.wp-timeline-item:last-child {
+    padding-bottom: 0;
+}
+
+.wp-timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -22px;
+    top: 4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #d1d5db;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px #e5e7eb;
+}
+
+.wp-timeline-item.latest::before {
+    background: #3b82f6;
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.wp-timeline-content {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+}
+
+.wp-timeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.wp-timeline-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.wp-timeline-time {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.wp-timeline-desc {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/**
+ * 时间线操作者信息
+ * 显示操作人姓名
+ */
+.wp-timeline-operator {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+/**
+ * 时间线状态变化
+ * 用于展示状态流转（处理前 -> 处理后）
+ */
+.wp-timeline-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+}
+
+.wp-timeline-status .status-before {
+    padding: 2px 8px;
+    background: #f3f4f6;
+    color: #6b7280;
+    border-radius: 4px;
+}
+
+.wp-timeline-status .status-arrow {
+    color: #9ca3af;
+}
+
+.wp-timeline-status .status-after {
+    padding: 2px 8px;
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-radius: 4px;
+}
+
+/**
+ * 时间线目标信息
+ * 显示流转目标单位
+ */
+.wp-timeline-target {
+    font-size: 12px;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
+/**
+ * 时间线备注区域
+ */
+.wp-timeline-remark {
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px dashed #e5e7eb;
+}
+
+.wp-timeline-remark-item {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+}
+
+.wp-timeline-remark-item .remark-key {
+    font-weight: 500;
+    color: #4b5563;
+}
+
+/**
+ * 时间线信息变更区域
+ * 显示字段变更详情
+ */
+.wp-timeline-changes {
+    margin-top: 6px;
+    padding-left: 8px;
+}
+
+.wp-timeline-change-item {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.wp-timeline-change-item .change-type {
+    font-weight: 500;
+    color: #4b5563;
+    min-width: 70px;
+}
+
+.wp-timeline-change-item .change-old {
+    color: #ef4444;
+    text-decoration: line-through;
+}
+
+.wp-timeline-change-item .change-new {
+    color: #10b981;
+    font-weight: 500;
+}
+
+/**
+ * 时间线单位信息
+ * 显示操作前后单位变化
+ */
+.wp-timeline-unit {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 4px;
+}
+
+/**
+ * 时间线节点颜色变体
+ * 不同类型节点使用不同颜色
+ */
+.wp-timeline-item.primary::before {
+    background: #3b82f6;
+    box-shadow: 0 0 0 2px #3b82f6;
+}
+
+.wp-timeline-item.success::before {
+    background: #10b981;
+    box-shadow: 0 0 0 2px #10b981;
+}
+
+.wp-timeline-item.warning::before {
+    background: #f59e0b;
+    box-shadow: 0 0 0 2px #f59e0b;
+}
+
+.wp-timeline-item.danger::before {
+    background: #ef4444;
+    box-shadow: 0 0 0 2px #ef4444;
+}
+
+.wp-timeline-item.info::before {
+    background: #6b7280;
+    box-shadow: 0 0 0 2px #6b7280;
+}
+
+/* ============================================
+   空状态样式 (Empty State)
+   ============================================ */
+
+/**
+ * 空状态容器
+ */
+.wp-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 24px;
+    color: #9ca3af;
+    text-align: center;
+}
+
+.wp-empty-state i {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.4;
+}
+
+.wp-empty-state p {
+    font-size: 14px;
+}
+
+/**
+ * 空状态图标容器
+ */
+.wp-empty-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    color: #9ca3af;
+    margin-bottom: 16px;
+}
+
+.wp-empty-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.wp-empty-desc {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+/* ============================================
+   复选框样式 (Checkbox)
+   ============================================ */
+
+/**
+ * 复选框容器
+ */
+.wp-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.wp-checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+
+.wp-checkbox-label {
+    font-size: 13px;
+    color: #374151;
+    user-select: none;
+}
+
+/**
+ * 警示复选框
+ */
+.wp-checkbox.warning {
+    padding: 6px 16px;
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    border-radius: 12px;
+}
+
+.wp-checkbox.warning .wp-checkbox-label {
+    color: #991b1b;
+    font-weight: 500;
+}
+
+/* ============================================
+   滚动条样式 (Scrollbar)
+   ============================================ */
+
+/**
+ * 自定义滚动条
+ */
+.wp-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.wp-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.wp-scrollbar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 2px;
+}
+
+.wp-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/**
+ * 宽滚动条
+ */
+.wp-scrollbar-wide::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.wp-scrollbar-wide::-webkit-scrollbar-thumb {
+    border-radius: 3px;
+}
+
+/* ============================================
+   动画效果样式 (Animation)
+   ============================================ */
+
+/**
+ * 淡入动画
+ */
+.wp-fade-in {
+    animation: wp-fade-in 0.5s ease-in forwards;
+}
+
+@keyframes wp-fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/**
+ * 向上滑入动画
+ */
+.wp-slide-up {
+    animation: wp-slide-up 0.5s ease-out forwards;
+}
+
+@keyframes wp-slide-up {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/**
+ * 向左滑入动画
+ */
+.wp-slide-left {
+    animation: wp-slide-left 0.5s ease-out forwards;
+}
+
+@keyframes wp-slide-left {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/**
+ * 缩放进入动画
+ */
+.wp-scale-in {
+    animation: wp-scale-in 0.4s ease-out forwards;
+}
+
+@keyframes wp-scale-in {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/**
+ * 文字切换动画
+ */
+.wp-text-animate {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.wp-text-animate.fading-out {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.wp-text-animate.fading-in {
+    opacity: 0;
+    transform: translateX(-20px);
+}
+
+.wp-text-animate.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/**
+ * 脉冲动画
+ */
+.wp-pulse {
+    animation: wp-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes wp-pulse {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 16px rgba(59, 130, 246, 0.8);
+    }
+}
+
+/**
+ * 摇摆动画
+ */
+.wp-wave {
+    animation: wp-wave 2s ease-in-out infinite;
+    transform-origin: 70% 70%;
+}
+
+@keyframes wp-wave {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(20deg); }
+    75% { transform: rotate(-10deg); }
+}
+
+/**
+ * 弹跳动画
+ */
+.wp-bounce {
+    animation: wp-bounce 1.4s ease-in-out infinite both;
+}
+
+@keyframes wp-bounce {
+    0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.5;
+    }
+    40% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* ============================================
+   工具类样式 (Utilities)
+   ============================================ */
+
+/**
+ * 文字渐变效果
+ */
+.wp-text-gradient {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/**
+ * 通知红点
+ */
+.wp-notification-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    width: 8px;
+    height: 8px;
+    background-color: #ef4444;
+    border-radius: 50%;
+}
+
+/**
+ * 分隔线
+ */
+.wp-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #e5e7eb 20%, #e5e7eb 80%, transparent);
+    margin: 16px 0;
+}
+
+/**
+ * 提示信息
+ */
+.wp-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.wp-hint i {
+    color: #3b82f6;
+}
+
+/**
+ * 隐藏元素
+ */
+.wp-hidden {
+    display: none !important;
+}
+
+/**
+ * 透明度渐变
+ */
+.wp-opacity-0 {
+    opacity: 0;
+}
+
+.wp-opacity-50 {
+    opacity: 0.5;
+}
+
+.wp-opacity-100 {
+    opacity: 1;
+}
+
+/* ============================================
+   响应式适配 (Responsive)
+   ============================================ */
+
+@media (max-width: 1024px) {
+    .wp-panel-gradient-top {
+        padding: 24px;
+    }
+
+    .wp-stat-value {
+        font-size: 24px;
+    }
+}
+
+@media (max-width: 768px) {
+    .wp-panel-gradient-top {
+        padding: 20px;
+    }
+
+    .wp-header {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+
+    .wp-header-right {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .wp-stat-value {
+        font-size: 24px;
+    }
+
+    .wp-modal-container {
+        max-width: 95vw;
+        margin: 16px;
+    }
+}

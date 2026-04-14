@@ -1,0 +1,9 @@
+- [x] `showPopoverConfirm` is successfully integrated into `processing.js` and displays correctly on button click.
+- [x] "提交" (Submit) button triggers a popover confirmation.
+- [x] "不属实" (Not True) button triggers a popover confirmation.
+- [x] Feedback data sent to the backend includes modified letter details (`群众姓名`, `手机号`, `身份证号`, `来信时间`, `来信渠道`, `分类`, `诉求内容`, `专项关注标签`), recording filenames, result filenames, and feedback content (`remarkContent`).
+- [x] Backend compares letter fields and correctly generates `change_records`.
+- [x] Backend reads flow history and accurately identifies the "feedback unit" (previous processing unit).
+- [x] A new flow record is created on submit with `"诉求情况": "属实"`, and includes all data changes, feedback content, and file names.
+- [x] A new flow record is created on invalid with `"诉求情况": "不属实"`, and includes all data changes, feedback content, and file names.
+- [x] The `信件表` and `流转表` are properly updated.

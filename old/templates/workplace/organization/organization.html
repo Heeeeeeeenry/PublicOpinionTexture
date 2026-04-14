@@ -1,0 +1,263 @@
+<!-- 组织管理页面 -->
+<div id="content-organization" class="h-full flex flex-col overflow-hidden">
+    <!-- 页面标题栏 -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 organization-header">
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold text-gray-800">组织管理</h2>
+                <p class="text-gray-500 mt-1">管理单位组织架构和下发权限</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 选项卡 -->
+    <div class="bg-white rounded-2xl shadow-sm mb-6 tabs-panel overflow-hidden">
+        <div class="flex border-b border-gray-100">
+            <button id="tab-units" class="flex-1 px-6 py-4 text-sm font-medium text-blue-600 border-b-2 border-blue-600 transition tab-btn active" data-tab="units">
+                <i class="fas fa-building mr-2"></i>单位管理
+            </button>
+            <button id="tab-dispatch" class="flex-1 px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 transition tab-btn" data-tab="dispatch">
+                <i class="fas fa-paper-plane mr-2"></i>下发权限
+            </button>
+        </div>
+    </div>
+
+    <!-- 单位管理选项卡内容 -->
+    <div id="tab-content-units" class="bg-white rounded-2xl shadow-sm flex-1 flex flex-col min-h-0 tab-content">
+        <!-- 搜索栏 -->
+        <div class="p-4 border-b border-gray-100 search-filter-panel">
+            <div class="flex gap-4">
+                <div class="flex-1 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="unit-search-input" placeholder="搜索单位名称..."
+                           class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <select id="filter-level1" class="px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">全部一级单位</option>
+                </select>
+                <button id="btn-add-unit" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    新增单位
+                </button>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="flex-1 overflow-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">一级单位</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">二级单位</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">三级单位</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="units-table-body" class="divide-y divide-gray-100">
+                    <!-- 数据将通过 JavaScript 动态加载 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="p-4 border-t border-gray-100 flex items-center justify-between pagination-panel">
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-gray-500" id="units-pagination-info">共 0 条记录</span>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-500">每页显示：</label>
+                    <select id="units-page-size-select" class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="10">10条</option>
+                        <option value="20" selected>20条</option>
+                        <option value="50">50条</option>
+                        <option value="100">100条</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-2" id="units-pagination-controls">
+                <!-- 分页按钮将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 下发权限选项卡内容 -->
+    <div id="tab-content-dispatch" class="bg-white rounded-2xl shadow-sm flex-1 flex flex-col min-h-0 tab-content hidden">
+        <!-- 搜索栏 -->
+        <div class="p-4 border-b border-gray-100 search-filter-panel">
+            <div class="flex gap-4">
+                <div class="flex-1 relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                    <input type="text" id="dispatch-search-input" placeholder="搜索单位名称..."
+                           class="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <button id="btn-add-dispatch" class="px-6 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition flex items-center">
+                    <i class="fas fa-plus mr-2"></i>
+                    新增下发权限
+                </button>
+            </div>
+        </div>
+
+        <!-- 表格 -->
+        <div class="flex-1 overflow-auto">
+            <table class="w-full">
+                <thead class="bg-gray-50 sticky top-0 z-10">
+                    <tr>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">单位名称</th>
+                        <th class="px-6 py-4 text-left text-sm font-semibold text-gray-600">下发范围</th>
+                        <th class="px-6 py-4 text-center text-sm font-semibold text-gray-600">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="dispatch-table-body" class="divide-y divide-gray-100">
+                    <!-- 数据将通过 JavaScript 动态加载 -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 分页 -->
+        <div class="p-4 border-t border-gray-100 flex items-center justify-between pagination-panel">
+            <div class="flex items-center gap-4">
+                <span class="text-sm text-gray-500" id="dispatch-pagination-info">共 0 条记录</span>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm text-gray-500">每页显示：</label>
+                    <select id="dispatch-page-size-select" class="px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="10">10条</option>
+                        <option value="20" selected>20条</option>
+                        <option value="50">50条</option>
+                        <option value="100">100条</option>
+                    </select>
+                </div>
+            </div>
+            <div class="flex gap-2" id="dispatch-pagination-controls">
+                <!-- 分页按钮将通过 JavaScript 动态生成 -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑单位弹窗 -->
+<div id="unit-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-lg mx-4">
+        <div class="p-6 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800" id="unit-modal-title">新增单位</h3>
+        </div>
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="unit-id">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">一级单位 <span class="text-red-500">*</span></label>
+                <input type="text" id="input-unit-level1" placeholder="请输入一级单位"
+                       class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">二级单位</label>
+                <input type="text" id="input-unit-level2" placeholder="请输入二级单位（可选）"
+                       class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">三级单位</label>
+                <input type="text" id="input-unit-level3" placeholder="请输入三级单位（可选）"
+                       class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-100 flex justify-end gap-3">
+            <button id="btn-unit-cancel" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition">
+                取消
+            </button>
+            <button id="btn-unit-save" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                保存
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 新增/编辑下发权限弹窗 -->
+<div id="dispatch-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-4xl mx-4">
+        <div class="p-6 border-b border-gray-100">
+            <h3 class="text-lg font-bold text-gray-800" id="dispatch-modal-title">新增下发权限</h3>
+        </div>
+        <div class="p-6 space-y-4">
+            <input type="hidden" id="dispatch-permission-id">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">单位编码 <span class="text-red-500">*</span></label>
+                <div class="relative">
+                    <input type="text" id="input-dispatch-unit-search" placeholder="搜索单位名称或编码..."
+                           class="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <div id="dispatch-unit-dropdown" class="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg max-h-60 overflow-y-auto hidden">
+                        <!-- 单位选项将通过 JavaScript 动态生成 -->
+                    </div>
+                </div>
+                <input type="hidden" id="input-dispatch-unit">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">下发范围 <span class="text-red-500">*</span></label>
+                <div class="space-y-2">
+                    <label class="flex items-center">
+                        <input type="radio" name="dispatch-scope-type" value="all" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500" checked>
+                        <span class="ml-2 text-sm text-gray-700">向所有单位下发</span>
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="dispatch-scope-type" value="specific" class="w-4 h-4 text-blue-600 border-gray-300 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">向指定单位下发</span>
+                    </label>
+                </div>
+            </div>
+            <div id="specific-units-container" class="hidden">
+                <label class="block text-sm font-medium text-gray-700 mb-2">选择可下发的单位</label>
+                <div class="grid grid-cols-2 gap-4">
+                    <!-- 左侧：可选单位列表 -->
+                    <div>
+                        <div class="mb-3">
+                            <input type="text" id="input-units-filter" placeholder="搜索单位名称或编码..."
+                                   class="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div class="max-h-60 overflow-y-auto border border-gray-200 rounded-xl p-3 bg-gray-50">
+                            <div id="units-checkbox-list" class="space-y-2">
+                                <!-- 单位复选框将通过 JavaScript 动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 右侧：已选单位列表 -->
+                    <div>
+                        <div class="mb-3 flex items-center justify-between">
+                            <span class="text-sm text-gray-600">已选单位 (<span id="selected-units-count">0</span>)</span>
+                            <button id="btn-clear-selected" class="text-xs text-red-600 hover:text-red-800">清空</button>
+                        </div>
+                        <div class="max-h-60 overflow-y-auto border border-gray-200 rounded-xl p-3 bg-blue-50">
+                            <div id="selected-units-list" class="space-y-2">
+                                <!-- 已选单位将通过 JavaScript 动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-100 flex justify-end gap-3">
+            <button id="btn-dispatch-cancel" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition">
+                取消
+            </button>
+            <button id="btn-dispatch-save" class="px-5 py-2.5 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition">
+                保存
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 删除确认弹窗 -->
+<div id="delete-modal" class="fixed inset-0 bg-black/50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-sm mx-4 p-6">
+        <div class="text-center">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-lg font-bold text-gray-800 mb-2">确认删除</h3>
+            <p class="text-gray-500 mb-6" id="delete-modal-message">确定要删除吗？此操作不可恢复。</p>
+            <div class="flex justify-center gap-3">
+                <button id="btn-cancel-delete" class="px-5 py-2.5 text-gray-600 hover:bg-gray-100 rounded-xl transition">
+                    取消
+                </button>
+                <button id="btn-confirm-delete" class="px-5 py-2.5 bg-red-600 text-white rounded-xl hover:bg-red-700 transition">
+                    删除
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

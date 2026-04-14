@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>民意智感中心 - 业务系统</title>
+    <script src="/static/js/lib/tailwind.js"></script>
+    <link rel="stylesheet" href="/static/css/lib/fontawesome.min.css">
+    <link rel="stylesheet" href="/static/css/workplace/workplace.css">
+    <link rel="stylesheet" href="/static/css/workplace/home/welcome.css">
+    <link rel="stylesheet" href="/static/css/workplace/letters/letters.css">
+    <link rel="stylesheet" href="/static/css/workplace/dispatch/dispatch.css">
+    <link rel="stylesheet" href="/static/css/workplace/processing/processing.css">
+    <link rel="stylesheet" href="/static/css/workplace/audit/audit.css">
+</head>
+<body>
+    <!-- 页面加载动画 -->
+    <div class="page-loading-overlay" id="page-loading">
+        <div class="loading-pinwheel">
+            <div class="pinwheel-blade"></div>
+            <div class="pinwheel-center"></div>
+        </div>
+        <div class="loading-text">正在加载...</div>
+    </div>
+
+    <div class="workplace-container">
+        <!-- 顶部标题栏 - 固定高度80px -->
+        <header class="workplace-header flex items-center justify-between px-6">
+            <!-- 左侧：菜单按钮和标题 -->
+            <div class="flex items-center">
+                <button id="menu-toggle" class="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition mr-4">
+                    <i class="fas fa-bars text-gray-600 text-lg"></i>
+                </button>
+                <h1 class="text-xl font-bold text-gray-800">民意智感中心</h1>
+            </div>
+
+            <!-- 右侧：通知、用户名 -->
+            <div class="flex items-center space-x-4">
+                <!-- 通知图标 -->
+                <button class="relative w-10 h-10 flex items-center justify-center rounded-xl hover:bg-gray-100 transition">
+                    <i class="fas fa-bell text-gray-600 text-lg"></i>
+                    <span class="notification-badge"></span>
+                </button>
+
+                <!-- 用户名 -->
+                <div class="flex items-center px-4 py-2 bg-gray-50 rounded-xl">
+                    <i class="fas fa-user text-gray-500 mr-2"></i>
+                    <span class="text-gray-700 font-medium" id="username">管理员</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- 主体区域 -->
+        <div class="workplace-body">
+            <!-- 左侧菜单 - 固定宽度250px -->
+            <aside id="sidebar" class="workplace-sidebar">
+                <nav class="p-4 pt-6" id="menu-container">
+                    <!-- 菜单将通过 JavaScript 动态加载 -->
+                </nav>
+            </aside>
+
+            <!-- 右侧内容区域 - 占据剩余宽度 -->
+            <main id="workspace-content" class="workplace-content">
+                <!-- 页面内容将动态加载到这里 -->
+            </main>
+        </div>
+    </div>
+
+    <!-- 核心控制器 -->
+    <script src="/static/js/workplace/workplace.js"></script>
+</body>
+</html>
