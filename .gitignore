@@ -1,4 +1,6 @@
- PublicOpinionTexture/__pycache__/
 venv/
 .idea/
 .trae/
+__pycache__/
+*.py[cod]
+*$py.class
