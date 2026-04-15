@@ -23,8 +23,8 @@
 import threading
 import time
 import inspect
-import MySQLdb
-from MySQLdb.cursors import DictCursor
+import pymysql
+from pymysql.cursors import DictCursor
 from datetime import datetime
 from dbutils.pooled_db import PooledDB
 from apps.config.settings import DB
@@ -134,7 +134,7 @@ class DatabaseManager:
         - 最大空闲连接15个
         """
         self._pool = PooledDB(
-            creator=MySQLdb,
+            creator=pymysql,
             maxconnections=20,
             mincached=10,
             maxcached=15,
@@ -262,7 +262,7 @@ class DatabaseManager:
                 - 查询失败: 抛出异常
 
         Raises:
-            MySQLdb.Error: 数据库操作错误
+            pymysql.Error: 数据库操作错误
 
         Example:
             results = db.exec("SELECT * FROM users WHERE id = %s", (1,))
@@ -297,7 +297,7 @@ class DatabaseManager:
                 connection.commit()
                 return cursor.rowcount
 
-        except MySQLdb.OperationalError as e:
+        except pymysql.OperationalError as e:
             error_code = e.args[0] if e.args else None
             if error_code in (2006, 2013, 2014) and retry_count < 3:
                 print(f"[DatabaseManager] 连接错误({error_code})，正在重试({retry_count + 1}/3)...")
@@ -472,7 +472,7 @@ def exec_transaction(sql_statements):
         list: 每条语句的执行结果列表
 
     Raises:
-        MySQLdb.Error: 事务执行失败时回滚并抛出异常
+        pymysql.Error: 事务执行失败时回滚并抛出异常
 
     Example:
         from apps.database.db_manager import exec_transaction

@@ -10,7 +10,7 @@ class DatabaseConfig:
     数据库配置
     """
 
-    HOST = "localhost"
+    HOST = "81.70.230.137"
     PORT = 53306
     NAME = "pot_data"
     USER = "pot"
