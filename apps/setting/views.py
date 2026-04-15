@@ -1049,7 +1049,7 @@ def _handle_create_user(args, user):
     hashed_password = PoliceAuthBackend.hash_password(password)
 
     db.exec(
-        "INSERT INTO police_users (police_number, name, nickname, phone, permission_level, unit_name, password, is_active) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+        "INSERT INTO police_users (police_number, name, nickname, phone, permission_level, unit_name, password, is_active, created_at) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NOW())",
         (police_number, name, nickname, phone, permission_level, unit_name, hashed_password, is_active),
         fetch=False
     )

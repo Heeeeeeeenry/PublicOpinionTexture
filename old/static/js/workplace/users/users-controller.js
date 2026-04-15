@@ -889,8 +889,8 @@ class UsersController {
 
         const level2Units = [...new Set(
             this.units
-                .filter(u => u.level1 === level1 && u.level2)
-                .map(u => u.level2)
+                .filter(u => u["一级"] === level1 && u["二级"])
+                .map(u => u["二级"])
         )];
 
         level2Units.forEach(unit => {
@@ -909,8 +909,8 @@ class UsersController {
 
         const level3Units = [...new Set(
             this.units
-                .filter(u => u.level1 === level1 && u.level2 === level2 && u.level3)
-                .map(u => u.level3)
+                .filter(u => u["一级"] === level1 && u["二级"] === level2 && u["三级"])
+                .map(u => u["三级"])
         )];
 
         level3Units.forEach(unit => {
@@ -928,7 +928,7 @@ class UsersController {
         // 填充一级单位
         const level1Select = this.elements.inputUnitLevel1;
         level1Select.innerHTML = '<option value="">选择市局</option>';
-        const level1Units = [...new Set(this.units.map(u => u.level1).filter(Boolean))];
+        const level1Units = [...new Set(this.units.map(u => u["一级"]).filter(Boolean))];
         level1Units.forEach(unit => {
             const option = document.createElement('option');
             option.value = unit;
@@ -943,7 +943,30 @@ class UsersController {
             this.elements.inputName.value = user.name;
             this.elements.inputNickname.value = user.nickname || '';
             this.elements.inputPhone.value = user.phone || '';
-            this.elements.inputPermissionLevel.value = user.permission_level;
+            // 权限级别映射：将代码转换为前端显示值
+            const permissionMap = {
+                'CITY': '市局',
+                'DISTRICT': '区县局/支队',
+                'OFFICER': '民警',
+                '市局': '市局',
+                '区县局': '区县局/支队',  // 处理数据库中可能的中文格式
+                '区县局/支队': '区县局/支队',
+                '民警': '民警'
+            };
+            
+            console.log('权限映射调试 (旧版本):');
+            console.log('  user.permission_level:', user.permission_level);
+            console.log('  permissionMap:', permissionMap);
+            console.log('  映射结果:', permissionMap[user.permission_level] || user.permission_level);
+            
+            const permissionValue = permissionMap[user.permission_level] || user.permission_level;
+            this.elements.inputPermissionLevel.value = permissionValue;
+            console.log('  设置后的inputPermissionLevel.value:', this.elements.inputPermissionLevel.value);
+            
+            // 调试：检查选择框的当前状态
+            console.log('  选择框调试 (旧版本):');
+            console.log('    所有选项:', Array.from(this.elements.inputPermissionLevel.options).map(opt => ({value: opt.value, text: opt.text, selected: opt.selected})));
+            console.log('    当前选中的选项:', this.elements.inputPermissionLevel.options[this.elements.inputPermissionLevel.selectedIndex]);
             this.elements.inputIsActive.checked = user.is_active;
 
             // 编辑时密码非必填

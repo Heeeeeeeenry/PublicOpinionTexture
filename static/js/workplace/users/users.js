@@ -116,6 +116,45 @@ class UsersController {
     }
 
     /**
+     * 确保权限级别选择框有正确的选项
+     */
+    ensurePermissionOptions() {
+        const select = this.elements.inputPermissionLevel;
+        if (!select) return;
+        
+        console.log('ensurePermissionOptions - 调试信息:');
+        console.log('  选择框ID:', select.id);
+        console.log('  当前选项数量:', select.options.length);
+        console.log('  当前选项详情:');
+        Array.from(select.options).forEach((opt, index) => {
+            console.log(`    选项${index}: value="${opt.value}", text="${opt.text}", selected=${opt.selected}`);
+        });
+        
+        // 总是重新创建选项，确保正确
+        console.log('  强制重新创建选项');
+        select.innerHTML = '';
+        
+        const requiredOptions = [
+            {value: '', text: '请选择权限级别'},
+            {value: '市局', text: '市局'},
+            {value: '区县局/支队', text: '区县局/支队'},
+            {value: '民警', text: '民警'}
+        ];
+        
+        requiredOptions.forEach(opt => {
+            const option = document.createElement('option');
+            option.value = opt.value;
+            option.textContent = opt.text;
+            select.appendChild(option);
+        });
+        
+        console.log('  重新创建后的选项详情:');
+        Array.from(select.options).forEach((opt, index) => {
+            console.log(`    选项${index}: value="${opt.value}", text="${opt.text}", selected=${opt.selected}`);
+        });
+    }
+
+    /**
      * 确保所有元素可见
      */
     ensureElementsVisible() {
@@ -549,44 +588,92 @@ class UsersController {
     populateLevel2Options() {
         const level1 = this.elements.inputUnitLevel1.value;
         const level2Select = this.elements.inputUnitLevel2;
+        
+        console.log('populateLevel2Options - 调试信息:');
+        console.log('  level1:', level1);
+        
+        // 保存当前选中的值
+        const currentValue = level2Select.value;
+        console.log('  当前选中的值:', currentValue);
+        
+        // 清空选项，但保留第一个选项
+        const firstOption = level2Select.querySelector('option');
+        level2Select.innerHTML = firstOption ? firstOption.outerHTML : '<option value="">选择区县局</option>';
 
         const level2Units = [...new Set(
-            this.units.filter(u => u.level1 === level1 && u.level2).map(u => u.level2)
+            this.units.filter(u => u['一级'] === level1 && u['二级']).map(u => u['二级'])
         )];
 
+        console.log('  可选的二级单位:', level2Units);
+        
         level2Units.forEach(unit => {
             const option = document.createElement('option');
             option.value = unit;
             option.textContent = unit;
             level2Select.appendChild(option);
         });
+        
+        // 恢复选中的值（如果还存在）
+        if (currentValue && level2Units.includes(currentValue)) {
+            level2Select.value = currentValue;
+            console.log('  恢复选中的值:', currentValue);
+        }
     }
 
     populateLevel3Options(level1, level2) {
         const level3Select = this.elements.inputUnitLevel3;
+        
+        console.log('populateLevel3Options - 调试信息:');
+        console.log('  level1:', level1);
+        console.log('  level2:', level2);
+        
+        // 保存当前选中的值
+        const currentValue = level3Select.value;
+        console.log('  当前选中的值:', currentValue);
+        
+        // 清空选项，但保留第一个选项
+        const firstOption = level3Select.querySelector('option');
+        level3Select.innerHTML = firstOption ? firstOption.outerHTML : '<option value="">选择科室所队</option>';
 
         const level3Units = [...new Set(
-            this.units.filter(u => u.level1 === level1 && u.level2 === level2 && u.level3).map(u => u.level3)
+            this.units.filter(u => u['一级'] === level1 && u['二级'] === level2 && u['三级']).map(u => u['三级'])
         )];
 
+        console.log('  可选的三级单位:', level3Units);
+        
         level3Units.forEach(unit => {
             const option = document.createElement('option');
             option.value = unit;
             option.textContent = unit;
             level3Select.appendChild(option);
         });
+        
+        // 恢复选中的值（如果还存在）
+        if (currentValue && level3Units.includes(currentValue)) {
+            level3Select.value = currentValue;
+            console.log('  恢复选中的值:', currentValue);
+        }
     }
 
     openModal(user = null) {
         const level1Select = this.elements.inputUnitLevel1;
         level1Select.innerHTML = '<option value="">选择市局</option>';
-        const level1Units = [...new Set(this.units.map(u => u.level1).filter(Boolean))];
+        const level1Units = [...new Set(this.units.map(u => u['一级']).filter(Boolean))];
         level1Units.forEach(unit => {
             const option = document.createElement('option');
             option.value = unit;
             option.textContent = unit;
             level1Select.appendChild(option);
         });
+
+        // 重置单位选择下拉框
+        this.elements.inputUnitLevel2.innerHTML = '<option value="">选择区县局</option>';
+        this.elements.inputUnitLevel2.disabled = true;
+        this.elements.inputUnitLevel3.innerHTML = '<option value="">选择科室所队</option>';
+        this.elements.inputUnitLevel3.disabled = true;
+
+        // 确保权限级别选择框有正确的选项
+        this.ensurePermissionOptions();
 
         if (user) {
             this.elements.modalTitle.textContent = '编辑用户';
@@ -595,7 +682,42 @@ class UsersController {
             this.elements.inputName.value = user.name;
             this.elements.inputNickname.value = user.nickname || '';
             this.elements.inputPhone.value = user.phone || '';
-            this.elements.inputPermissionLevel.value = user.permission_level;
+            
+            // 权限级别映射：将代码转换为前端显示值
+            const permissionFrontendMap = {
+                'CITY': '市局',
+                'DISTRICT': '区县局/支队',
+                'OFFICER': '民警',
+                '市局': '市局',
+                '区县局': '区县局/支队',  // 处理数据库中可能的中文格式
+                '区县局/支队': '区县局/支队',
+                '民警': '民警'
+            };
+            
+            console.log('权限映射调试:');
+            console.log('  user.permission_level:', user.permission_level);
+            console.log('  user.permission_display:', user.permission_display);
+            console.log('  permissionFrontendMap:', permissionFrontendMap);
+            
+            // 使用显示名称或映射后的值
+            const frontendPermission = user.permission_display ? 
+                permissionFrontendMap[user.permission_display] || user.permission_display :
+                permissionFrontendMap[user.permission_level] || user.permission_level;
+            
+            console.log('  计算出的frontendPermission:', frontendPermission);
+            console.log('  HTML选项值检查:');
+            console.log('    市局:', this.elements.inputPermissionLevel.querySelector('option[value="市局"]') ? '存在' : '不存在');
+            console.log('    区县局/支队:', this.elements.inputPermissionLevel.querySelector('option[value="区县局/支队"]') ? '存在' : '不存在');
+            console.log('    民警:', this.elements.inputPermissionLevel.querySelector('option[value="民警"]') ? '存在' : '不存在');
+            
+            this.elements.inputPermissionLevel.value = frontendPermission;
+            console.log('  设置后的inputPermissionLevel.value:', this.elements.inputPermissionLevel.value);
+            
+            // 调试：检查选择框的当前状态
+            console.log('  选择框调试:');
+            console.log('    所有选项:', Array.from(this.elements.inputPermissionLevel.options).map(opt => ({value: opt.value, text: opt.text, selected: opt.selected})));
+            console.log('    当前选中的选项:', this.elements.inputPermissionLevel.options[this.elements.inputPermissionLevel.selectedIndex]);
+            
             this.elements.inputIsActive.checked = user.is_active;
 
             this.elements.passwordRequired.style.display = 'none';
@@ -630,38 +752,116 @@ class UsersController {
     }
 
     setUnitSelection(unitFullName) {
-        if (!unitFullName) return;
+        console.log('setUnitSelection - 调试信息:');
+        console.log('  unitFullName:', unitFullName);
+        
+        if (!unitFullName) {
+            console.log('  unitFullName为空，跳过');
+            return;
+        }
 
-        const unit = this.units.find(u => {
+        // 清理unitFullName，移除多余空格
+        const cleanedUnitName = unitFullName.replace(/\s+/g, ' ').trim();
+        console.log('  清理后的unitFullName:', cleanedUnitName);
+        
+        // 分割单位层级
+        const unitParts = cleanedUnitName.split(' / ');
+        console.log('  单位层级:', unitParts);
+        
+        // 尝试多种匹配方式
+        let unit = null;
+        
+        // 方式1：完全匹配
+        unit = this.units.find(u => {
             const parts = [];
-            if (u['一级']) parts.push(u['一级']);
-            if (u['二级']) parts.push(u['二级']);
-            if (u['三级']) parts.push(u['三级']);
-            return parts.join(' / ') === unitFullName;
+            if (u['一级']) parts.push(u['一级'].trim());
+            if (u['二级']) parts.push(u['二级'].trim());
+            if (u['三级']) parts.push(u['三级'].trim());
+            const fullName = parts.join(' / ');
+            return fullName === cleanedUnitName;
         });
+        
+        if (unit) {
+            console.log('  方式1: 完全匹配成功');
+        } else {
+            console.log('  方式1: 完全匹配失败，尝试部分匹配');
+            
+            // 方式2：部分匹配（对于两级单位，匹配三级单位的前两级）
+            if (unitParts.length === 2) {
+                unit = this.units.find(u => {
+                    if (!u['一级'] || !u['二级']) return false;
+                    return u['一级'].trim() === unitParts[0] && 
+                           u['二级'].trim() === unitParts[1];
+                });
+                
+                if (unit) {
+                    console.log('  方式2: 两级单位部分匹配成功');
+                }
+            }
+            
+            // 方式3：只匹配第一级
+            if (!unit && unitParts.length >= 1) {
+                unit = this.units.find(u => {
+                    if (!u['一级']) return false;
+                    return u['一级'].trim() === unitParts[0];
+                });
+                
+                if (unit) {
+                    console.log('  方式3: 一级匹配成功');
+                }
+            }
+        }
 
-        if (!unit) return;
+        if (!unit) {
+            console.log('  未找到匹配的单位');
+            console.log('  尝试在单位列表中查找类似单位...');
+            
+            // 显示可能相关的单位
+            const relatedUnits = this.units.filter(u => {
+                if (!u['一级']) return false;
+                return u['一级'].includes(unitParts[0]) || 
+                       (unitParts.length > 1 && u['二级'] && u['二级'].includes(unitParts[1]));
+            }).slice(0, 5);
+            
+            console.log('  可能相关的单位:', relatedUnits);
+            return;
+        }
 
+        console.log('  找到匹配的单位:', unit);
+        console.log('  单位层级分析:');
+        console.log('    一级:', unit['一级']);
+        console.log('    二级:', unit['二级']);
+        console.log('    三级:', unit['三级']);
+        
+        // 根据用户的unitFullName确定实际层级
+        console.log('  用户实际单位层级:', unitParts.length, '级');
+        
         this.elements.inputUnitLevel1.value = unit['一级'] || '';
 
-        if (unit['二级']) {
+        if (unitParts.length >= 2 && unit['二级']) {
+            // 用户有二级单位（区县局/支队权限）
             this.populateLevel2Options();
             this.elements.inputUnitLevel2.value = unit['二级'];
             this.elements.inputUnitLevel2.disabled = false;
 
-            if (unit['三级']) {
+            if (unitParts.length >= 3 && unit['三级']) {
+                // 用户有三级单位（民警权限）
                 this.populateLevel3Options(unit['一级'], unit['二级']);
                 this.elements.inputUnitLevel3.value = unit['三级'];
                 this.elements.inputUnitLevel3.disabled = false;
             } else {
+                // 用户只有两级单位（区县局/支队权限）
                 this.elements.inputUnitLevel3.innerHTML = '<option value="">选择科室所队</option>';
                 this.elements.inputUnitLevel3.disabled = true;
+                console.log('  禁用三级单位选择框（用户只有两级单位）');
             }
         } else {
+            // 用户只有一级单位（市局权限）
             this.elements.inputUnitLevel2.innerHTML = '<option value="">选择区县局</option>';
             this.elements.inputUnitLevel2.disabled = true;
             this.elements.inputUnitLevel3.innerHTML = '<option value="">选择科室所队</option>';
             this.elements.inputUnitLevel3.disabled = true;
+            console.log('  禁用二级和三级单位选择框（用户只有一级单位）');
         }
     }
 
@@ -705,9 +905,16 @@ class UsersController {
         const level2 = this.elements.inputUnitLevel2.value;
         const level3 = this.elements.inputUnitLevel3.value;
 
+        console.log('构建unit_name - 调试信息:');
+        console.log('  permissionLevel:', permissionLevel);
+        console.log('  level1:', level1);
+        console.log('  level2:', level2);
+        console.log('  level3:', level3);
+
         if (permissionLevel === '市局') {
             unitFullName = level1;
-        } else if (permissionLevel === '区县局') {
+        } else if (permissionLevel === '区县局/支队' || permissionLevel === '区县局') {
+            // 处理两种可能的格式
             if (!level2) {
                 alert('请选择区县局');
                 return;
@@ -720,6 +927,8 @@ class UsersController {
             }
             unitFullName = `${level1} / ${level2} / ${level3}`;
         }
+
+        console.log('  构建的unitFullName:', unitFullName);
 
         if (this.currentUser.permission_level === '区县局') {
             const currentUnitParts = this.currentUser.unit_name.split(' / ');
@@ -738,12 +947,29 @@ class UsersController {
         }
 
         const order = id ? 'update_user' : 'create_user';
+        
+        // 权限级别后端映射：将前端显示值转换为代码
+        const permissionBackendMap = {
+            '市局': 'CITY',
+            '区县局/支队': 'DISTRICT',
+            '区县局': 'DISTRICT',  // 处理两种可能的格式
+            '民警': 'OFFICER'
+        };
+        
+        const backendPermission = permissionBackendMap[permissionLevel] || permissionLevel;
+        
+        console.log('发送给API的参数:');
+        console.log('  order:', order);
+        console.log('  permissionLevel (前端):', permissionLevel);
+        console.log('  backendPermission (后端):', backendPermission);
+        console.log('  unitFullName:', unitFullName);
+        
         const args = {
             police_number: policeNumber,
             name: name,
             nickname: nickname,
             phone: phone,
-            permission_level: permissionLevel,
+            permission_level: backendPermission,
             unit_name: unitFullName,
             is_active: isActive
         };
