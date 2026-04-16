@@ -28,32 +28,43 @@ class HomeController {
         console.log('[HomeController] init 开始执行');
         this.container = container;
 
-        // 生成并插入HTML
+        // 1. 快速设置基本HTML结构
         this.container.innerHTML = HomeTools.generateHTML();
-
-        // 加载并显示用户信息
-        await this.loadUserInfo();
-
-        // 绑定时间筛选按钮事件
         this.bindTimeFilterEvents();
-
-        // 启动实时时间更新
         this.startRealtimeClock();
 
+        // 2. 标记为已初始化（基本结构就绪）
+        this.isInitialized = true;
+        console.log('[HomeController] 首页基本初始化完成');
+
+        // 3. 异步执行耗时操作（不阻塞导航）
+        this._initializeAsync().catch(err => {
+            console.error('[HomeController] 异步初始化失败:', err);
+        });
+    }
+    
+    /**
+     * 异步初始化（不阻塞导航）
+     */
+    async _initializeAsync() {
+        console.log('[HomeController] 开始异步初始化');
+        
+        // 加载并显示用户信息
+        await this.loadUserInfo();
+        
         // 加载统计数据
         await this.loadStatistics();
-
+        
         // 执行入场动画（仅首次）
         if (!this.animationPlayed) {
             await this.playEntranceAnimation();
             this.animationPlayed = true;
         }
-
+        
         // 启动定时轮询
         this.startPolling();
-
-        this.isInitialized = true;
-        console.log('[HomeController] 首页初始化完成');
+        
+        console.log('[HomeController] 异步初始化完成');
     }
 
     /**
@@ -62,8 +73,22 @@ class HomeController {
     async show() {
         console.log('[HomeController] 页面显示');
         this.ensureElementsVisible();
-        await this.refresh();
+        
+        // 异步刷新数据（不阻塞页面切换）
+        this.refresh().catch(err => {
+            console.error('[HomeController] 刷新数据失败:', err);
+        });
+        
         this.startPolling();
+    }
+
+    /**
+     * 停止所有动画
+     * 当页面切换时立即调用，确保动画不会阻塞页面切换
+     */
+    stopAnimation() {
+        console.log('[HomeController] 停止动画');
+        // 首页通常没有复杂动画，但确保重置任何可能的动画状态
     }
 
     /**

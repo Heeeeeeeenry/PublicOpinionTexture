@@ -82,16 +82,32 @@ class LettersController {
         console.log('[LettersController] 页面显示');
         this.ensureElementsVisible();
 
-        // 每次显示页面时加载最新数据
+        // 异步加载数据（不阻塞页面切换）
         if (!this.animationPlayed) {
-            // 首次加载，执行入场动画
-            await this.loadLetters(true);
-            await this.playEntranceAnimation();
-            this.animationPlayed = true;
+            // 首次加载，异步执行入场动画
+            this.loadLetters(true).then(() => {
+                return this.playEntranceAnimation();
+            }).then(() => {
+                this.animationPlayed = true;
+            }).catch(err => {
+                console.error('[LettersController] 首次加载失败:', err);
+            });
         } else {
-            // 非首次加载，只刷新数据
-            await this.loadLetters();
+            // 非首次加载，异步刷新数据
+            this.loadLetters().catch(err => {
+                console.error('[LettersController] 刷新数据失败:', err);
+            });
         }
+    }
+
+    /**
+     * 停止所有动画
+     * 当页面切换时立即调用，确保动画不会阻塞页面切换
+     */
+    stopAnimation() {
+        console.log('[LettersController] 停止动画');
+        // 确保重置所有元素到可见状态
+        this.ensureElementsVisible();
     }
 
     /**

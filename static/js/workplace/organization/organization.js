@@ -28,6 +28,8 @@ class OrganizationController {
         // 动画和数据状态
         this.initialAnimationPlayed = false;
         this.needRefresh = true;
+        this.animationAborted = false;  // 动画中断标志
+        this.pageReady = false;         // 页面是否准备好
         
         // DOM 元素引用
         this.elements = {};
@@ -37,31 +39,48 @@ class OrganizationController {
         this.container = container;
         console.log('[OrganizationController] 初始化组织管理页面');
 
-        const hasPermission = await OrganizationTools.checkPermission();
-        if (!hasPermission) {
+        try {
+            // 1. 检查权限（同步检查，如果有缓存）
+            const hasPermission = await OrganizationTools.checkPermission();
+            if (!hasPermission) {
+                this.container.innerHTML = `
+                    <div class="flex items-center justify-center h-full">
+                        <div class="text-center">
+                            <i class="fas fa-lock text-6xl text-gray-300 mb-4"></i>
+                            <h2 class="text-xl font-bold text-gray-600">权限不足</h2>
+                            <p class="text-gray-500 mt-2">只有市局管理员才能访问此页面</p>
+                        </div>
+                    </div>
+                `;
+                this.isInitialized = true;
+                return;
+            }
+
+            // 2. 设置HTML结构
+            this.container.innerHTML = OrganizationHtml.generateHTML();
+            this.getElements();
+            this.bindEvents();
+
+            // 3. 标记为已初始化
+            this.isInitialized = true;
+            console.log('[OrganizationController] 组织管理页面初始化完成');
+
+            // 4. 页面已准备好，可以显示
+            this.pageReady = true;
+            
+        } catch (error) {
+            console.error('[OrganizationController] 初始化失败:', error);
             this.container.innerHTML = `
                 <div class="flex items-center justify-center h-full">
-                    <div class="text-center">
-                        <i class="fas fa-lock text-6xl text-gray-300 mb-4"></i>
-                        <h2 class="text-xl font-bold text-gray-600">权限不足</h2>
-                        <p class="text-gray-500 mt-2">只有市局管理员才能访问此页面</p>
+                    <div class="text-center text-red-500">
+                        <i class="fas fa-exclamation-triangle text-6xl mb-4"></i>
+                        <h2 class="text-xl font-bold">初始化失败</h2>
+                        <p class="mt-2">${error.message || '未知错误'}</p>
                     </div>
                 </div>
             `;
-            return;
+            this.isInitialized = true;
         }
-
-        this.container.innerHTML = OrganizationHtml.generateHTML();
-
-        this.hideAllElements();
-        this.getElements();
-        this.bindEvents();
-
-        await this.loadUnits(true);
-        await this.loadDispatchPermissions(true);
-
-        this.isInitialized = true;
-        console.log('[OrganizationController] 组织管理页面初始化完成');
     }
 
     hideAllElements() {
@@ -84,31 +103,29 @@ class OrganizationController {
     }
 
     async show() {
-        console.log('[OrganizationController] 页面显示');
-        this.ensureElementsVisible();
-
-        // 页面切换时总是跳过入场动画
-        // 只有在首次进入页面时才播放动画
-        if (!this.initialAnimationPlayed) {
-            await this.playEntranceAnimation();
-            this.initialAnimationPlayed = true;
+        console.log('[OrganizationController] 页面显示，isInitialized:', this.isInitialized);
+        
+        // 确保页面已初始化
+        if (!this.isInitialized || !this.container) {
+            console.error('[OrganizationController] 页面未初始化，无法显示');
+            return;
         }
         
-        // 加载当前标签页的数据（跳过表格动画）
+        // 确保元素可见
+        this.ensureElementsVisible();
+        
+        console.log('[OrganizationController] 页面基本显示完成，开始异步加载数据');
+
+        // 异步加载数据（不阻塞页面切换）
+        // 使用 Promise 但不等待，允许用户继续切换
         if (this.currentTab === 'units') {
-            if (this.needRefresh || !this.units || this.units.length === 0) {
-                await this.loadUnits(true);  // skipAnimation = true
-                this.needRefresh = false;
-            } else {
-                this.renderUnitsTable(true);  // skipAnimation = true
-            }
+            this.loadUnits().catch(err => {
+                console.error('[OrganizationController] 加载单位列表失败:', err);
+            });
         } else {
-            if (this.needRefresh || !this.dispatchPermissions || this.dispatchPermissions.length === 0) {
-                await this.loadDispatchPermissions(true);  // skipAnimation = true
-                this.needRefresh = false;
-            } else {
-                this.renderDispatchTable(true);  // skipAnimation = true
-            }
+            this.loadDispatchPermissions().catch(err => {
+                console.error('[OrganizationController] 加载下发权限失败:', err);
+            });
         }
     }
 
@@ -118,6 +135,10 @@ class OrganizationController {
      */
     stopAnimation() {
         console.log('[OrganizationController] 停止动画');
+        // 立即停止所有 WpAnimation 动画
+        if (typeof WpAnimation !== 'undefined' && typeof WpAnimation.stopAll === 'function') {
+            WpAnimation.stopAll();
+        }
         // 立即重置所有元素到可见状态
         this.ensureElementsVisible();
     }
@@ -148,17 +169,32 @@ class OrganizationController {
     }
 
     async playEntranceAnimation() {
+        // 重置中断标志
+        this.animationAborted = false;
+        
         const header = this.container.querySelector('#organization-header');
         const tabsPanel = this.container.querySelector('.tabs-panel');
         const searchPanel = this.container.querySelector('#tab-content-' + this.currentTab + ' .search-filter-panel');
         const tableRows = this.container.querySelectorAll('#' + this.currentTab + '-table-body tr');
         const paginationPanel = this.container.querySelector('#' + this.currentTab + '-pagination');
 
+        // 检查是否被中断
+        if (this.animationAborted) {
+            console.log('[OrganizationController] 入场动画被中断，跳过剩余动画');
+            return;
+        }
         if (header) await WpAnimation.moveAndFadeIn(header, 'down', 30, 800, 0);
+        
+        if (this.animationAborted) return;
         if (tabsPanel) await WpAnimation.moveAndFadeIn(tabsPanel, 'down', 20, 600, 0);
+        
+        if (this.animationAborted) return;
         if (searchPanel) await WpAnimation.moveAndFadeIn(searchPanel, 'down', 20, 600, 0);
+        
+        if (this.animationAborted) return;
         if (paginationPanel) await WpAnimation.moveAndFadeIn(paginationPanel, 'down', 15, 500, 0);
         
+        if (this.animationAborted) return;
         if (tableRows.length > 0) {
             await WpAnimation.moveAndFadeIn(tableRows, 'left', 30, 500, 50);
         }

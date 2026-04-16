@@ -84,9 +84,46 @@ class CategoryController {
      * 当页面切换时立即调用，确保动画不会阻塞页面切换
      */
     stopAnimation() {
-        console.log('[CategoryController] 停止动画');
+        console.log('[CategoryController] 停止所有动画');
+        // 立即停止所有 WpAnimation 动画
+        if (typeof WpAnimation !== 'undefined' && typeof WpAnimation.stopAll === 'function') {
+            WpAnimation.stopAll();
+        }
         // 立即重置所有元素到可见状态
         this.ensureElementsVisible();
+        // 立即完成动画效果
+        this.forceCompleteAnimation();
+    }
+    
+    /**
+     * 强制完成动画效果
+     * 将所有动画元素立即设置为最终状态
+     */
+    forceCompleteAnimation() {
+        const selectors = [
+            '#category-header',
+            '.search-filter-panel',
+            '#category-table-body tr',
+            '#category-pagination'
+        ];
+        
+        selectors.forEach(selector => {
+            const elements = this.container.querySelectorAll(selector);
+            elements.forEach(el => {
+                el.style.opacity = '1';
+                el.style.transform = 'none';
+                el.style.transition = 'none';
+            });
+        });
+        
+        setTimeout(() => {
+            selectors.forEach(selector => {
+                const elements = this.container.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.style.transition = '';
+                });
+            });
+        }, 50);
     }
 
     hide() {

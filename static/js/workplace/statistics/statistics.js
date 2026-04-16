@@ -73,8 +73,22 @@ class StatisticsController {
         if (this.statusChart) this.statusChart.resize();
         if (this.categoryChart) this.categoryChart.resize();
 
-        await this.refresh();
+        // 异步刷新数据（不阻塞页面切换）
+        this.refresh().catch(err => {
+            console.error('[StatisticsController] 刷新数据失败:', err);
+        });
+        
         this.startPolling();
+    }
+
+    /**
+     * 停止所有动画
+     * 当页面切换时立即调用，确保动画不会阻塞页面切换
+     */
+    stopAnimation() {
+        console.log('[StatisticsController] 停止动画');
+        // 确保重置所有元素到可见状态
+        this.ensureElementsVisible();
     }
 
     /**

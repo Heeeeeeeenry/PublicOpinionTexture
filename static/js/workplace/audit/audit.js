@@ -676,6 +676,16 @@ class AuditController {
         }
     }
 
+    /**
+     * 停止所有动画
+     * 当页面切换时立即调用，确保动画不会阻塞页面切换
+     */
+    stopAnimation() {
+        console.log('[AuditController] 停止动画');
+        // 确保重置所有元素到可见状态
+        this.ensureElementsVisible();
+    }
+
     hide() {
         this.stopPolling();
         if (this.aiController) {

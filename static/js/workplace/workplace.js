@@ -433,90 +433,109 @@ class Workplace {
         }
         
         this.navigating = true;
-
+        
         console.log(`[Workplace] 导航到: ${pageName}，当前页面: ${this.currentPage || '无'}`);
-
-        try {
 
         // 更新菜单选中状态
         this.updateActiveMenu(pageName);
 
-        // 1. 隐藏当前页面容器（如果存在）
-        console.log(`[Workplace] 检查隐藏容器: currentPage=${this.currentPage}, hasContainer=${!!(this.currentPage && this.pageContainers[this.currentPage])}`);
-        if (this.currentPage && this.pageContainers[this.currentPage]) {
-            console.log(`[Workplace] 隐藏当前页面容器: ${this.currentPage}`);
-            this.pageContainers[this.currentPage].style.display = 'none';
-        }
+        try {
+            // === 阶段1：核心导航操作（需要同步保护）===
+            
+            // 1.1 处理当前页面
+            if (this.currentPage && this.pageContainers[this.currentPage]) {
+                // 停止动画
+                if (this.currentController && typeof this.currentController.stopAnimation === 'function') {
+                    console.log(`[Workplace] 停止 ${this.currentPage} 的动画`);
+                    this.currentController.stopAnimation();
+                }
+                
+                // 隐藏容器
+                console.log(`[Workplace] 隐藏当前页面容器: ${this.currentPage}`);
+                this.pageContainers[this.currentPage].style.display = 'none';
+                
+                // 调用 hide 方法
+                if (this.currentController && typeof this.currentController.hide === 'function') {
+                    console.log(`[Workplace] 调用 ${this.currentPage}.hide()`);
+                    await this.currentController.hide();
+                }
+            }
 
-        // 2. 立即停止当前页面的所有动画
-        console.log(`[Workplace] 检查停止动画: currentController=${!!this.currentController}, currentPage=${this.currentPage}`);
-        if (this.currentController && typeof this.currentController.stopAnimation === 'function') {
-            console.log(`[Workplace] 立即停止 ${this.currentPage} 的动画`);
-            this.currentController.stopAnimation();
-        } else {
-            console.log(`[Workplace] 无法停止动画: currentController=${!!this.currentController}, stopAnimation=${this.currentController ? typeof this.currentController.stopAnimation : 'no controller'}`);
-        }
-
-        // 3. 调用当前控制器的 hide 方法
-        if (this.currentController && typeof this.currentController.hide === 'function') {
-            console.log(`[Workplace] 隐藏当前页面控制器: ${this.currentPage}`);
-            this.currentController.hide();
-        }
-
-        // 4. 检查目标页面是否已加载
-        if (this.pageContainers[pageName]) {
-            // 页面已加载，直接显示容器
-            console.log(`[Workplace] 页面 ${pageName} 已加载，显示容器`);
+            // 1.2 处理目标页面容器
+            if (!this.pageContainers[pageName]) {
+                // 页面未加载，创建容器
+                console.log(`[Workplace] 页面 ${pageName} 未加载，创建容器`);
+                const pageContainer = document.createElement('div');
+                pageContainer.id = `page-${pageName}`;
+                pageContainer.className = 'page-container h-full';
+                pageContainer.style.display = 'block';
+                this.workspaceContent.appendChild(pageContainer);
+                this.pageContainers[pageName] = pageContainer;
+            }
+            
+            // 1.3 显示目标容器
+            console.log(`[Workplace] 显示页面容器: ${pageName}`);
             this.pageContainers[pageName].style.display = 'block';
             
-            // 使用控制器
+            // 1.4 更新控制器引用
             this.currentController = this.controllers[pageName];
-            console.log(`[Workplace] 使用控制器: ${pageName}`);
-
-            // 显示页面
-            if (typeof this.currentController.show === 'function') {
-                console.log(`[Workplace] 调用控制器 show() 方法`);
-                await this.currentController.show();
-            }
-        } else if (this.controllers[pageName]) {
-            // 页面未加载，但有控制器，需要初始化
-            console.log(`[Workplace] 页面 ${pageName} 未加载，开始初始化`);
             
-            // 创建页面容器
-            const pageContainer = document.createElement('div');
-            pageContainer.id = `page-${pageName}`;
-            pageContainer.className = 'page-container h-full';
-            pageContainer.style.display = 'block';
-            this.workspaceContent.appendChild(pageContainer);
-            this.pageContainers[pageName] = pageContainer;
+            // 1.5 更新当前页面状态（立即更新，让用户知道已切换）
+            this.currentPage = pageName;
             
-            // 使用控制器
-            this.currentController = this.controllers[pageName];
-            console.log(`[Workplace] 使用控制器: ${pageName}`);
-
-            // 初始化控制器
-            if (typeof this.currentController.init === 'function') {
-                console.log(`[Workplace] 调用控制器 init() 方法`);
-                await this.currentController.init(pageContainer);  // 传入独立的容器
+            // === 阶段2：页面初始化和显示（可以异步执行）===
+            
+            // 2.1 如果页面需要初始化（异步执行，不阻塞）
+            if (this.currentController && typeof this.currentController.init === 'function') {
+                // 检查是否已初始化
+                if (!this.currentController.isInitialized) {
+                    console.log(`[Workplace] 开始异步初始化控制器 ${pageName}`);
+                    // 不等待，立即返回
+                    this.currentController.init(this.pageContainers[pageName]).then(() => {
+                        console.log(`[Workplace] 控制器 ${pageName} 初始化完成`);
+                        
+                        // 初始化完成后显示页面
+                        if (this.currentController && typeof this.currentController.show === 'function') {
+                            console.log(`[Workplace] 初始化后调用 ${pageName}.show()`);
+                            this.currentController.show().catch(err => {
+                                console.error(`[Workplace] 显示控制器 ${pageName} 失败:`, err);
+                            });
+                        }
+                    }).catch(err => {
+                        console.error(`[Workplace] 初始化控制器 ${pageName} 失败:`, err);
+                    });
+                } else {
+                    // 页面已初始化，直接显示
+                    if (this.currentController && typeof this.currentController.show === 'function') {
+                        console.log(`[Workplace] 调用已初始化的 ${pageName}.show()`);
+                        this.currentController.show().catch(err => {
+                            console.error(`[Workplace] 显示控制器 ${pageName} 失败:`, err);
+                        });
+                    }
+                }
+            } else {
+                // 没有 init 方法，直接显示
+                if (this.currentController && typeof this.currentController.show === 'function') {
+                    console.log(`[Workplace] 直接调用 ${pageName}.show()`);
+                    this.currentController.show().catch(err => {
+                        console.error(`[Workplace] 显示控制器 ${pageName} 失败:`, err);
+                    });
+                }
             }
-
-            // 显示页面
-            if (typeof this.currentController.show === 'function') {
-                console.log(`[Workplace] 调用控制器 show() 方法`);
-                await this.currentController.show();
-            }
-        } else {
-            // 没有控制器，直接加载模板
-            console.warn(`[Workplace] 页面 ${pageName} 没有对应的控制器`);
-            await this.loadPage(pageName);
-        }
-
-        this.currentPage = pageName;
-        console.log(`[Workplace] 导航完成，当前页面设置为: ${pageName}`);
+            
+            console.log(`[Workplace] 核心导航完成，当前页面: ${pageName}`);
+            
         } catch (error) {
             console.error(`[Workplace] 导航到 ${pageName} 失败:`, error);
+            // 恢复之前的状态
+            if (this.currentPage && this.pageContainers[this.currentPage]) {
+                this.pageContainers[this.currentPage].style.display = 'block';
+            }
+            throw error;
         } finally {
-            this.navigating = false;  // 确保重置导航标志
+            // 立即重置导航标志，允许用户继续切换
+            this.navigating = false;
+            console.log(`[Workplace] 导航标志已重置，允许继续导航`);
         }
     }
 

@@ -23,6 +23,7 @@ class SpecialFocusController {
         // 动画和数据状态
         this.initialAnimationPlayed = false;
         this.needRefresh = true;
+        this.animationAborted = false;  // 动画中断标志
     }
 
     async init(container) {
@@ -60,22 +61,11 @@ class SpecialFocusController {
     async show() {
         console.log('[SpecialFocusController] 页面显示');
         this.ensureElementsVisible();
-
-        // 页面切换时总是跳过入场动画
-        // 只有在首次进入页面时才播放动画
-        if (!this.initialAnimationPlayed) {
-            await this.loadSpecialFocusList(true);
-            await this.playEntranceAnimation();
-            this.initialAnimationPlayed = true;
-        } else {
-            // 使用缓存数据，跳过动画
-            if (this.needRefresh || !this.specialFocusList || this.specialFocusList.length === 0) {
-                await this.loadSpecialFocusList(true);  // skipAnimation = true
-                this.needRefresh = false;
-            } else {
-                this.renderTable(true);  // skipAnimation = true
-            }
-        }
+        
+        // 异步加载数据（不阻塞页面切换）
+        this.loadSpecialFocusList().catch(err => {
+            console.error('[SpecialFocusController] 加载专项关注列表失败:', err);
+        });
     }
 
     /**
@@ -84,6 +74,10 @@ class SpecialFocusController {
      */
     stopAnimation() {
         console.log('[SpecialFocusController] 停止动画');
+        // 立即停止所有 WpAnimation 动画
+        if (typeof WpAnimation !== 'undefined' && typeof WpAnimation.stopAll === 'function') {
+            WpAnimation.stopAll();
+        }
         // 立即重置所有元素到可见状态
         this.ensureElementsVisible();
     }
