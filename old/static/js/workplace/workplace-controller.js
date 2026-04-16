@@ -25,6 +25,7 @@ class WorkplaceController {
         this.pageContainers = {};
         this.menuData = [];
         this.currentUser = null;
+        this.navigating = false;  // 防止重复导航标志
 
         // DOM 元素引用
         this.workspace = null;
@@ -342,24 +343,40 @@ class WorkplaceController {
      */
     async navigate(pageName) {
         if (this.currentPage === pageName) return;
+        
+        // 防止重复导航
+        if (this.navigating) {
+            console.log(`[WorkplaceController] 正在导航中，跳过重复请求: ${pageName}`);
+            return;
+        }
+        
+        this.navigating = true;
 
         console.log(`[WorkplaceController] 导航到: ${pageName}`);
+        console.log(`[WorkplaceController] 当前页面: ${this.currentPage || '无'}`);
+
+        try {
 
         // 立即更新菜单选中状态
         this.updateActiveMenu(pageName);
 
         // 停止当前页面的动画并隐藏
         if (this.currentPage && this.pageContainers[this.currentPage]) {
-            // 先停止当前页面的动画
-            if (this.controllers[this.currentPage] && typeof this.controllers[this.currentPage].stopAnimation === 'function') {
-                this.controllers[this.currentPage].stopAnimation();
-            }
-
+            console.log(`[WorkplaceController] 隐藏当前页面: ${this.currentPage}`);
+            
+            // 立即隐藏容器，避免动画干扰
             const currentContainer = this.pageContainers[this.currentPage];
             currentContainer.style.display = 'none';
-
-            // 调用子控制器的 hide 方法（如果存在）
+            
+            // 然后停止当前页面的动画
+            if (this.controllers[this.currentPage] && typeof this.controllers[this.currentPage].stopAnimation === 'function') {
+                console.log(`[WorkplaceController] 停止 ${this.currentPage} 的动画`);
+                this.controllers[this.currentPage].stopAnimation();
+            }
+            
+            // 最后调用子控制器的 hide 方法
             if (this.controllers[this.currentPage] && typeof this.controllers[this.currentPage].hide === 'function') {
+                console.log(`[WorkplaceController] 调用 ${this.currentPage}.hide()`);
                 this.controllers[this.currentPage].hide();
             }
         }
@@ -369,6 +386,7 @@ class WorkplaceController {
             // 页面已加载，直接显示
             console.log(`[WorkplaceController] 页面 ${pageName} 已加载，直接显示`);
             const targetContainer = this.pageContainers[pageName];
+            console.log(`[WorkplaceController] 设置 ${pageName} 容器 display: block`);
             targetContainer.style.display = 'block';
 
             // 调用子控制器的 show 方法（如果存在）
@@ -376,12 +394,11 @@ class WorkplaceController {
                 // 设置当前控制器引用
                 this.currentController = this.controllers[pageName];
                 if (typeof this.controllers[pageName].show === 'function') {
+                    console.log(`[WorkplaceController] 调用 ${pageName}.show()`);
                     await this.controllers[pageName].show();
                 }
-                // 刷新数据
-                if (typeof this.controllers[pageName].refresh === 'function') {
-                    await this.controllers[pageName].refresh();
-                }
+                // 不再同时调用 refresh()，避免重复加载数据
+                // 如果需要刷新数据，可以在 show() 方法中处理
             }
         } else {
             // 页面未加载，需要加载HTML并初始化
@@ -403,9 +420,11 @@ class WorkplaceController {
 
             // 初始化页面控制器
             if (this.controllers[pageName]) {
+                console.log(`[WorkplaceController] 设置 ${pageName} 容器 display: block`);
                 pageContainer.style.display = 'block';
                 // 设置当前控制器引用
                 this.currentController = this.controllers[pageName];
+                console.log(`[WorkplaceController] 调用 ${pageName}.init()`);
                 await this.controllers[pageName].init(pageContainer);
             } else {
                 console.error(`[WorkplaceController] 找不到控制器: ${pageName}`);
@@ -415,6 +434,12 @@ class WorkplaceController {
         }
 
         this.currentPage = pageName;
+        console.log(`[WorkplaceController] 导航完成，当前页面设置为: ${pageName}`);
+        } catch (error) {
+            console.error(`[WorkplaceController] 导航到 ${pageName} 失败:`, error);
+        } finally {
+            this.navigating = false;  // 确保重置导航标志
+        }
     }
 
     /**

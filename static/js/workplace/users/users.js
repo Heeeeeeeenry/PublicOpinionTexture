@@ -26,6 +26,10 @@ class UsersController {
         this.resetPasswordId = null;
 
         this.elements = {};
+        
+        // 动画和数据状态
+        this.initialAnimationPlayed = false;
+        this.needRefresh = true;
     }
 
     /**
@@ -102,18 +106,36 @@ class UsersController {
      * 显示页面
      */
     async show() {
-        console.log('[UsersController] 页面显示，animationPlayed:', this.animationPlayed, 'isInitialized:', this.isInitialized);
+        console.log('[UsersController] 页面显示，initialAnimationPlayed:', this.initialAnimationPlayed);
         this.ensureElementsVisible();
 
-        if (!this.animationPlayed) {
+        // 页面切换时总是跳过入场动画
+        // 只有在首次进入页面时才播放动画
+        if (!this.initialAnimationPlayed) {
             console.log('[UsersController] 首次显示，执行入场动画');
             await this.loadUsers(true);
             await this.playEntranceAnimation();
-            this.animationPlayed = true;
+            this.initialAnimationPlayed = true;
         } else {
-            console.log('[UsersController] 非首次显示，仅刷新数据');
-            await this.loadUsers(false);
+            // 使用缓存数据，跳过动画
+            console.log('[UsersController] 非首次显示，使用缓存数据');
+            if (this.needRefresh || !this.users || this.users.length === 0) {
+                await this.loadUsers(true);  // skipAnimation = true
+                this.needRefresh = false;
+            } else {
+                this.renderTable(true);  // skipAnimation = true
+            }
         }
+    }
+
+    /**
+     * 停止所有动画
+     * 当页面切换时立即调用，确保动画不会阻塞页面切换
+     */
+    stopAnimation() {
+        console.log('[UsersController] 停止动画');
+        // 立即重置所有元素到可见状态
+        this.ensureElementsVisible();
     }
 
     /**

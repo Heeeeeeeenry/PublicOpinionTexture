@@ -20,6 +20,10 @@ class CategoryController {
         this.level1Options = new Set();
 
         this.elements = {};
+        
+        // 动画和数据状态
+        this.initialAnimationPlayed = false;
+        this.needRefresh = true;
     }
 
     async init(container) {
@@ -58,13 +62,31 @@ class CategoryController {
         console.log('[CategoryController] 页面显示');
         this.ensureElementsVisible();
 
-        if (!this.animationPlayed) {
+        // 页面切换时总是跳过入场动画
+        // 只有在首次进入页面时才播放动画
+        if (!this.initialAnimationPlayed) {
             await this.loadCategories(true);
             await this.playEntranceAnimation();
-            this.animationPlayed = true;
+            this.initialAnimationPlayed = true;
         } else {
-            await this.loadCategories(false);
+            // 使用缓存数据，跳过动画
+            if (this.needRefresh || !this.categories || this.categories.length === 0) {
+                await this.loadCategories(true);  // skipAnimation = true
+                this.needRefresh = false;
+            } else {
+                this.renderTable(true);  // skipAnimation = true
+            }
         }
+    }
+
+    /**
+     * 停止所有动画
+     * 当页面切换时立即调用，确保动画不会阻塞页面切换
+     */
+    stopAnimation() {
+        console.log('[CategoryController] 停止动画');
+        // 立即重置所有元素到可见状态
+        this.ensureElementsVisible();
     }
 
     hide() {

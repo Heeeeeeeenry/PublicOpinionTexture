@@ -25,6 +25,10 @@ class OrganizationController {
         this.deleteType = null;
         this.deleteId = null;
         
+        // 动画和数据状态
+        this.initialAnimationPlayed = false;
+        this.needRefresh = true;
+        
         // DOM 元素引用
         this.elements = {};
     }
@@ -83,16 +87,39 @@ class OrganizationController {
         console.log('[OrganizationController] 页面显示');
         this.ensureElementsVisible();
 
-        if (!this.animationPlayed) {
+        // 页面切换时总是跳过入场动画
+        // 只有在首次进入页面时才播放动画
+        if (!this.initialAnimationPlayed) {
             await this.playEntranceAnimation();
-            this.animationPlayed = true;
-        } else {
-            if (this.currentTab === 'units') {
-                await this.loadUnits(false);
+            this.initialAnimationPlayed = true;
+        }
+        
+        // 加载当前标签页的数据（跳过表格动画）
+        if (this.currentTab === 'units') {
+            if (this.needRefresh || !this.units || this.units.length === 0) {
+                await this.loadUnits(true);  // skipAnimation = true
+                this.needRefresh = false;
             } else {
-                await this.loadDispatchPermissions(false);
+                this.renderUnitsTable(true);  // skipAnimation = true
+            }
+        } else {
+            if (this.needRefresh || !this.dispatchPermissions || this.dispatchPermissions.length === 0) {
+                await this.loadDispatchPermissions(true);  // skipAnimation = true
+                this.needRefresh = false;
+            } else {
+                this.renderDispatchTable(true);  // skipAnimation = true
             }
         }
+    }
+
+    /**
+     * 停止所有动画
+     * 当页面切换时立即调用，确保动画不会阻塞页面切换
+     */
+    stopAnimation() {
+        console.log('[OrganizationController] 停止动画');
+        // 立即重置所有元素到可见状态
+        this.ensureElementsVisible();
     }
 
     hide() {

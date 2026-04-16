@@ -32,6 +32,7 @@ class UsersController {
         this.currentUser = null;
         this.deleteId = null;
         this.resetPasswordId = null;
+        this.needRefresh = true;  // 初始需要刷新
 
         // 分页相关属性
         this.pageSize = 20;
@@ -52,11 +53,46 @@ class UsersController {
         this.initAborted = true;
         
         if (this.currentAnimation) {
-            this.currentAnimation.pause();
-            this.currentAnimation = null;
+            // 完全停止动画，移除所有回调
+            try {
+                this.currentAnimation.pause();
+                // 移除动画实例的所有回调
+                if (this.currentAnimation._callbacks) {
+                    this.currentAnimation._callbacks = {};
+                }
+                // 立即完成动画，跳过所有剩余动画
+                this.currentAnimation.seek(this.currentAnimation.duration);
+                this.currentAnimation = null;
+            } catch (error) {
+                console.error('[UsersController] 停止动画出错:', error);
+            }
         }
         // 重置所有元素到可见状态
         this.resetElementsVisibility();
+        
+        // 清理所有可能的内存引用
+        this.cleanupAnimation();
+    }
+    
+    /**
+     * 清理动画相关资源
+     */
+    cleanupAnimation() {
+        // 清理动画实例
+        this.currentAnimation = null;
+        
+        // 重置动画状态
+        this.animationPlayed = false;
+        this.animationCompleted = false;
+        
+        // 清理可能的事件监听器
+        if (this.container) {
+            // 移除所有 anime.js 相关的数据属性
+            const animeElements = this.container.querySelectorAll('[data-anime]');
+            animeElements.forEach(el => {
+                el.removeAttribute('data-anime');
+            });
+        }
     }
 
     /**
@@ -172,8 +208,15 @@ class UsersController {
         // 确保所有元素可见
         this.ensureElementsVisible();
 
-        // 重新加载数据并执行表格动画
-        await this.loadUsers();
+        // 页面切换时跳过动画，直接显示
+        // 只有在数据过期或需要刷新时才重新加载
+        if (this.needRefresh || !this.users || this.users.length === 0) {
+            await this.loadUsers(true);  // skipAnimation = true
+            this.needRefresh = false;
+        } else {
+            // 已有数据，直接渲染表格（跳过动画）
+            this.renderTable(true);
+        }
     }
 
     /**
@@ -565,6 +608,7 @@ class UsersController {
                 this.totalPages = Math.ceil(this.totalCount / this.pageSize) || 1;
                 this.renderTable(skipAnimation);
                 this.renderPagination();
+                this.needRefresh = false;  // 数据已刷新
             } else {
                 console.error('[UsersController] 加载用户列表失败:', data.error);
             }

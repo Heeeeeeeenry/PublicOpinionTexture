@@ -29,6 +29,7 @@ class SpecialFocusController {
         this.totalCount = 0;
         this.totalPages = 1;
         this.deleteId = null;
+        this.needRefresh = true;  // 初始需要刷新
 
         // DOM 元素引用
         this.elements = {};
@@ -151,8 +152,15 @@ class SpecialFocusController {
         // 确保所有元素可见
         this.ensureElementsVisible();
 
-        // 重新加载数据并执行表格动画
-        await this.loadSpecialFocusList();
+        // 页面切换时跳过动画
+        // 只有在数据过期或需要刷新时才重新加载
+        if (this.needRefresh || !this.specialFocusList || this.specialFocusList.length === 0) {
+            await this.loadSpecialFocusList(true);  // skipAnimation = true
+            this.needRefresh = false;
+        } else {
+            // 已有数据，直接渲染表格（跳过动画）
+            this.renderTable(true);
+        }
     }
 
     /**

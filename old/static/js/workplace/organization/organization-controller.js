@@ -40,6 +40,7 @@ class OrganizationController {
         // 删除状态
         this.deleteType = null;
         this.deleteId = null;
+        this.needRefresh = true;  // 初始需要刷新
         
         // DOM 元素引用
         this.elements = {};
@@ -183,11 +184,22 @@ class OrganizationController {
         // 确保所有元素可见
         this.ensureElementsVisible();
 
-        // 刷新当前选项卡数据并执行表格动画
+        // 页面切换时跳过动画
+        // 刷新当前选项卡数据
         if (this.currentTab === 'units') {
-            await this.loadUnits();
+            if (this.needRefresh || !this.units || this.units.length === 0) {
+                await this.loadUnits(true);  // skipAnimation = true
+                this.needRefresh = false;
+            } else {
+                this.renderUnitsTable(true);
+            }
         } else {
-            await this.loadDispatchPermissions();
+            if (this.needRefresh || !this.dispatchPermissions || this.dispatchPermissions.length === 0) {
+                await this.loadDispatchPermissions(true);  // skipAnimation = true
+                this.needRefresh = false;
+            } else {
+                this.renderDispatchTable(true);
+            }
         }
     }
 
