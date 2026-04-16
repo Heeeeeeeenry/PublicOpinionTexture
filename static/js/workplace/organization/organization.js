@@ -562,7 +562,9 @@ class OrganizationController {
     filterDispatchPermissions() {
         const searchTerm = this.elements.dispatchSearchInput.value.toLowerCase();
         this.filteredDispatchPermissions = this.dispatchPermissions.filter(perm => {
-            return !searchTerm || perm.unit_full_name.toLowerCase().includes(searchTerm);
+            // 兼容中文字段名和英文字段名
+            const unitFullName = (perm['单位全称'] || perm.unit_full_name || '').toLowerCase();
+            return !searchTerm || unitFullName.includes(searchTerm);
         });
         this.dispatchPage = 1;
         this.renderDispatchTable();
@@ -591,9 +593,14 @@ class OrganizationController {
         }
 
         this.elements.dispatchTableBody.innerHTML = pageData.map(perm => {
+            // 兼容中文字段名和英文字段名
+            const unitFullName = perm['单位全称'] || perm.unit_full_name || '';
+            const dispatchScope = perm['下发范围'] || perm.dispatch_scope || '[]';
+            const permId = perm['序号'] || perm.id;
+            
             let scopeDisplay = '';
             try {
-                const scopeArray = JSON.parse(perm.dispatch_scope);
+                const scopeArray = JSON.parse(dispatchScope);
                 if (scopeArray.includes('ALLDEPARTMENT')) {
                     scopeDisplay = '<span class="wp-badge success">所有单位</span>';
                 } else {
@@ -602,18 +609,18 @@ class OrganizationController {
                     </div>`;
                 }
             } catch (e) {
-                scopeDisplay = perm.dispatch_scope;
+                scopeDisplay = dispatchScope;
             }
 
             return `
                 <tr style="opacity: ${skipAnimation ? '0' : '1'};">
-                    <td class="font-medium text-gray-800">${perm.unit_full_name}</td>
+                    <td class="font-medium text-gray-800">${unitFullName}</td>
                     <td>${scopeDisplay}</td>
                     <td class="text-center">
-                        <button class="wp-icon-btn text-blue-500 hover:bg-blue-50" onclick="window.workplace.controllers.organization.editDispatchPermission(${perm.id})" title="编辑">
+                        <button class="wp-icon-btn text-blue-500 hover:bg-blue-50" onclick="window.workplace.controllers.organization.editDispatchPermission(${permId})" title="编辑">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="wp-icon-btn text-red-500 hover:bg-red-50" onclick="window.workplace.controllers.organization.deleteDispatchPermission(${perm.id})" title="删除">
+                        <button class="wp-icon-btn text-red-500 hover:bg-red-50" onclick="window.workplace.controllers.organization.deleteDispatchPermission(${permId})" title="删除">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -754,12 +761,15 @@ class OrganizationController {
 
         if (perm) {
             this.elements.dispatchModalTitle.textContent = '编辑下发权限';
-            this.elements.dispatchPermissionId.value = perm.id;
-            this.elements.inputDispatchUnitSearch.value = perm.unit_full_name;
-            this.elements.inputDispatchUnit.value = perm.unit_full_name;
+            // 兼容中文字段名和英文字段名
+            this.elements.dispatchPermissionId.value = perm['序号'] || perm.id;
+            const unitFullName = perm['单位全称'] || perm.unit_full_name || '';
+            this.elements.inputDispatchUnitSearch.value = unitFullName;
+            this.elements.inputDispatchUnit.value = unitFullName;
 
             try {
-                const scopeArray = JSON.parse(perm.dispatch_scope);
+                const dispatchScope = perm['下发范围'] || perm.dispatch_scope || '[]';
+                const scopeArray = JSON.parse(dispatchScope);
                 if (scopeArray.includes('ALLDEPARTMENT')) {
                     allRadio.checked = true;
                 } else {
@@ -844,7 +854,7 @@ class OrganizationController {
     }
 
     editDispatchPermission(id) {
-        const perm = this.dispatchPermissions.find(p => p.id === id);
+        const perm = this.dispatchPermissions.find(p => (p['序号'] || p.id) == id);
         if (perm) {
             this.openDispatchModal(perm);
         }
@@ -874,12 +884,14 @@ class OrganizationController {
 
         const order = id ? 'update_dispatch_permission' : 'create_dispatch_permission';
         const args = {
-            unit_full_name: unitFullName,
+            unit_name: unitFullName,  // 后端期望的参数名是unit_name，不是unit_full_name
             dispatch_scope: JSON.stringify(dispatchScope)
         };
         if (id) args.id = parseInt(id);
 
+        console.log('[OrganizationController] 保存下发权限参数:', { order, args });
         const result = await OrganizationTools.saveDispatchPermission(order, args);
+        console.log('[OrganizationController] 保存下发权限结果:', result);
 
         if (result.success) {
             this.closeDispatchModal();

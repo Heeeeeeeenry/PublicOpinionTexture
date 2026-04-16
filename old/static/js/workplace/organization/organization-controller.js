@@ -923,16 +923,19 @@ class OrganizationController {
         const pagePermissions = this.filteredDispatchPermissions.slice(start, end);
 
         this.elements.dispatchTableBody.innerHTML = pagePermissions.map(perm => {
-            const unitName = perm.unit_full_name || '未知单位';
+            // 兼容中文字段名和英文字段名
+            const unitName = perm['单位全称'] || perm.unit_full_name || '未知单位';
+            const dispatchScope = perm['下发范围'] || perm.dispatch_scope || '[]';
+            const permId = perm['序号'] || perm.id;
 
             let scopeText = '向所有单位下发';
             try {
-                const scope = JSON.parse(perm.dispatch_scope);
+                const scope = JSON.parse(dispatchScope);
                 if (Array.isArray(scope) && scope.length > 0 && scope[0] !== 'ALLDEPARTMENT') {
                     scopeText = `向 ${scope.length} 个指定单位下发`;
                 }
             } catch (e) {
-                scopeText = perm.dispatch_scope;
+                scopeText = dispatchScope;
             }
 
             return `
@@ -940,10 +943,10 @@ class OrganizationController {
                     <td class="px-6 py-4 text-sm text-gray-800 font-medium">${unitName}</td>
                     <td class="px-6 py-4 text-sm text-gray-600">${scopeText}</td>
                     <td class="px-6 py-4 text-center">
-                        <button class="text-blue-600 hover:text-blue-800 mx-1" onclick="window.workplaceController.controllers.organization.editDispatchPermission(${perm.id})" title="编辑">
+                        <button class="text-blue-600 hover:text-blue-800 mx-1" onclick="window.workplaceController.controllers.organization.editDispatchPermission(${permId})" title="编辑">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="text-red-600 hover:text-red-800 mx-1" onclick="window.workplaceController.controllers.organization.deleteDispatchPermission(${perm.id})" title="删除">
+                        <button class="text-red-600 hover:text-red-800 mx-1" onclick="window.workplaceController.controllers.organization.deleteDispatchPermission(${permId})" title="删除">
                             <i class="fas fa-trash"></i>
                         </button>
                     </td>
@@ -1251,14 +1254,17 @@ class OrganizationController {
 
         if (perm) {
             this.elements.dispatchModalTitle.textContent = '编辑下发权限';
-            this.elements.dispatchPermissionId.value = perm.id;
+            // 兼容中文字段名和英文字段名
+            this.elements.dispatchPermissionId.value = perm['序号'] || perm.id;
 
             // 设置单位选择
-            this.elements.inputDispatchUnit.value = perm.unit_full_name || '';
-            this.elements.inputDispatchUnitSearch.value = perm.unit_full_name || '';
+            const unitFullName = perm['单位全称'] || perm.unit_full_name || '';
+            this.elements.inputDispatchUnit.value = unitFullName;
+            this.elements.inputDispatchUnitSearch.value = unitFullName;
 
             try {
-                const scope = JSON.parse(perm.dispatch_scope);
+                const dispatchScope = perm['下发范围'] || perm.dispatch_scope || '[]';
+                const scope = JSON.parse(dispatchScope);
                 if (Array.isArray(scope) && scope.length > 0 && scope[0] === 'ALLDEPARTMENT') {
                     this.container.querySelector('input[name="dispatch-scope-type"][value="all"]').checked = true;
                     this.elements.specificUnitsContainer.classList.add('hidden');
@@ -1335,7 +1341,7 @@ class OrganizationController {
      * 编辑下发权限
      */
     editDispatchPermission(id) {
-        const perm = this.dispatchPermissions.find(p => p.id === id);
+        const perm = this.dispatchPermissions.find(p => (p['序号'] || p.id) == id);
         if (perm) {
             this.openDispatchModal(perm);
         }
