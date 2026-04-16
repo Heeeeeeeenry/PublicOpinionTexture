@@ -461,15 +461,40 @@ class OrganizationController {
         const level2 = this.elements.inputUnitLevel2.value.trim();
         const level3 = this.elements.inputUnitLevel3.value.trim();
 
+        console.log('[OrganizationController] 表单值:', { level1, level2, level3 });
+
         if (!level1) {
             alert('一级单位不能为空');
             return;
         }
 
+        // 构建单位全称：一级 / 二级 / 三级
+        // 根据实际业务逻辑：如果有三级单位，必须有二级单位
+        let fullName = level1;
+        if (level2) {
+            fullName += ' / ' + level2;
+            if (level3) {
+                fullName += ' / ' + level3;
+            }
+        }
+        // 注意：如果只有一级单位，fullName就是level1
+        
+        console.log('[OrganizationController] 构建的单位全称:', fullName);
+
         const isEdit = this.elements.unitId.value !== '';
         const order = isEdit ? 'update_unit' : 'create_unit';
 
-        const result = await OrganizationTools.saveUnit(order, { level1, level2, level3 });
+        // 发送给后端的参数
+        const args = { full_name: fullName, level1, level2, level3 };
+        
+        // 如果是编辑，还需要传递旧的单位全称
+        if (isEdit) {
+            args.old_full_name = this.elements.unitId.value;
+        }
+
+        console.log('[OrganizationController] 保存单位参数:', { order, args });
+        const result = await OrganizationTools.saveUnit(order, args);
+        console.log('[OrganizationController] 保存单位结果:', result);
 
         if (result.success) {
             this.closeUnitModal();

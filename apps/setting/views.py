@@ -5,6 +5,8 @@
 """
 
 import json
+import hashlib
+import time
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
@@ -351,16 +353,20 @@ def _handle_create_unit(args, user):
             'error': '单位全称和一级单位不能为空'
         }, status=400)
 
-    if level3:
+    # 将空字符串转换为None（NULL）
+    level2_for_db = level2 if level2 else None
+    level3_for_db = level3 if level3 else None
+    
+    if level3_for_db:
         existing = db.exec(
             "SELECT 一级, 二级, 三级 FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 = %s",
-            (level1, level2, level3),
+            (level1, level2_for_db, level3_for_db),
             fetch=True
         )
-    elif level2:
+    elif level2_for_db:
         existing = db.exec(
             "SELECT 一级, 二级, 三级 FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 IS NULL",
-            (level1, level2),
+            (level1, level2_for_db),
             fetch=True
         )
     else:
@@ -376,9 +382,32 @@ def _handle_create_unit(args, user):
             'error': '该单位已存在'
         }, status=400)
 
+    # 生成系统编码：使用单位全称的MD5哈希前8位 + 时间戳后6位
+    # 确保编码唯一且长度适中
+    import hashlib
+    import time
+    
+    # 构建编码基础字符串
+    code_base = f"{level1}_{level2 or ''}_{level3 or ''}_{int(time.time())}"
+    # 生成MD5哈希
+    md5_hash = hashlib.md5(code_base.encode('utf-8')).hexdigest()
+    # 取前8位作为系统编码
+    system_code = md5_hash[:8].upper()
+    
+    # 检查系统编码是否已存在（虽然概率极低）
+    code_check = db.exec(
+        "SELECT id FROM 单位 WHERE 系统编码 = %s",
+        (system_code,),
+        fetch=True
+    )
+    
+    # 如果编码已存在，添加后缀
+    if code_check:
+        system_code = f"{system_code}_{int(time.time()) % 10000:04d}"
+
     db.exec(
-        "INSERT INTO 单位 (一级, 二级, 三级) VALUES (%s, %s, %s)",
-        (level1, level2, level3),
+        "INSERT INTO 单位 (一级, 二级, 三级, 系统编码) VALUES (%s, %s, %s, %s)",
+        (level1, level2_for_db, level3_for_db, system_code),
         fetch=False
     )
 
@@ -418,17 +447,23 @@ def _handle_update_unit(args, user):
     old_level1 = parts[0] if len(parts) > 0 else ''
     old_level2 = parts[1] if len(parts) > 1 else ''
     old_level3 = parts[2] if len(parts) > 2 else ''
+    
+    # 将空字符串转换为None（NULL）
+    old_level2_for_db = old_level2 if old_level2 else None
+    old_level3_for_db = old_level3 if old_level3 else None
+    level2_for_db = level2 if level2 else None
+    level3_for_db = level3 if level3 else None
 
-    if old_level3:
+    if old_level3_for_db:
         existing = db.exec(
             "SELECT 一级, 二级, 三级 FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 = %s",
-            (old_level1, old_level2, old_level3),
+            (old_level1, old_level2_for_db, old_level3_for_db),
             fetch=True
         )
-    elif old_level2:
+    elif old_level2_for_db:
         existing = db.exec(
             "SELECT 一级, 二级, 三级 FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 IS NULL",
-            (old_level1, old_level2),
+            (old_level1, old_level2_for_db),
             fetch=True
         )
     else:
@@ -444,22 +479,22 @@ def _handle_update_unit(args, user):
             'error': '单位不存在'
         }, status=404)
 
-    if old_level3:
+    if old_level3_for_db:
         db.exec(
             "UPDATE 单位 SET 一级 = %s, 二级 = %s, 三级 = %s WHERE 一级 = %s AND 二级 = %s AND 三级 = %s",
-            (level1, level2, level3, old_level1, old_level2, old_level3),
+            (level1, level2_for_db, level3_for_db, old_level1, old_level2_for_db, old_level3_for_db),
             fetch=False
         )
-    elif old_level2:
+    elif old_level2_for_db:
         db.exec(
             "UPDATE 单位 SET 一级 = %s, 二级 = %s, 三级 = %s WHERE 一级 = %s AND 二级 = %s AND 三级 IS NULL",
-            (level1, level2, level3, old_level1, old_level2),
+            (level1, level2_for_db, level3_for_db, old_level1, old_level2_for_db),
             fetch=False
         )
     else:
         db.exec(
             "UPDATE 单位 SET 一级 = %s, 二级 = %s, 三级 = %s WHERE 一级 = %s AND 二级 IS NULL AND 三级 IS NULL",
-            (level1, level2, level3, old_level1),
+            (level1, level2_for_db, level3_for_db, old_level1),
             fetch=False
         )
 
@@ -493,17 +528,21 @@ def _handle_delete_unit(args, user):
     level1 = parts[0] if len(parts) > 0 else ''
     level2 = parts[1] if len(parts) > 1 else ''
     level3 = parts[2] if len(parts) > 2 else ''
+    
+    # 将空字符串转换为None（NULL）
+    level2_for_db = level2 if level2 else None
+    level3_for_db = level3 if level3 else None
 
-    if level3:
+    if level3_for_db:
         existing = db.exec(
             "SELECT 一级, 二级, 三级 FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 = %s",
-            (level1, level2, level3),
+            (level1, level2_for_db, level3_for_db),
             fetch=True
         )
-    elif level2:
+    elif level2_for_db:
         existing = db.exec(
             "SELECT 一级, 二级, 三级 FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 IS NULL",
-            (level1, level2),
+            (level1, level2_for_db),
             fetch=True
         )
     else:
@@ -519,16 +558,16 @@ def _handle_delete_unit(args, user):
             'error': '单位不存在'
         }, status=404)
 
-    if level3:
+    if level3_for_db:
         db.exec(
             "DELETE FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 = %s",
-            (level1, level2, level3),
+            (level1, level2_for_db, level3_for_db),
             fetch=False
         )
-    elif level2:
+    elif level2_for_db:
         db.exec(
             "DELETE FROM 单位 WHERE 一级 = %s AND 二级 = %s AND 三级 IS NULL",
-            (level1, level2),
+            (level1, level2_for_db),
             fetch=False
         )
     else:

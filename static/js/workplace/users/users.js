@@ -10,6 +10,7 @@ class UsersController {
         this.container = null;
         this.isInitialized = false;
         this.animationPlayed = false;
+        this.isLoadingUsers = false; // 新增：防止重复加载
 
         this.currentUser = null;
         this.users = [];
@@ -31,6 +32,14 @@ class UsersController {
      * 初始化页面
      */
     async init(container) {
+        console.log('[UsersController] 开始初始化，当前状态 isInitialized:', this.isInitialized, 'animationPlayed:', this.animationPlayed);
+        
+        // 如果已经初始化，跳过
+        if (this.isInitialized) {
+            console.log('[UsersController] 已经初始化，跳过');
+            return;
+        }
+        
         this.container = container;
         console.log('[UsersController] 初始化用户管理页面');
 
@@ -93,14 +102,16 @@ class UsersController {
      * 显示页面
      */
     async show() {
-        console.log('[UsersController] 页面显示');
+        console.log('[UsersController] 页面显示，animationPlayed:', this.animationPlayed, 'isInitialized:', this.isInitialized);
         this.ensureElementsVisible();
 
         if (!this.animationPlayed) {
+            console.log('[UsersController] 首次显示，执行入场动画');
             await this.loadUsers(true);
             await this.playEntranceAnimation();
             this.animationPlayed = true;
         } else {
+            console.log('[UsersController] 非首次显示，仅刷新数据');
             await this.loadUsers(false);
         }
     }
@@ -349,23 +360,40 @@ class UsersController {
      * @param {boolean} skipAnimation 是否跳过列表动画
      */
     async loadUsers(skipAnimation = false) {
-        const args = {
-            limit: this.pageSize,
-            page: this.currentPage
-        };
-        
-        if (this.currentUser && this.currentUser.permission_level === '区县局') {
-            args.unit_name = this.currentUser.unit_name;
+        // 防止重复加载
+        if (this.isLoadingUsers) {
+            console.log('[UsersController] 用户列表正在加载中，跳过重复请求');
+            return;
         }
+        
+        this.isLoadingUsers = true;
+        console.log('[UsersController] 开始加载用户列表，skipAnimation:', skipAnimation);
+        
+        try {
+            const args = {
+                limit: this.pageSize,
+                page: this.currentPage
+            };
+            
+            if (this.currentUser && this.currentUser.permission_level === '区县局') {
+                args.unit_name = this.currentUser.unit_name;
+            }
 
-        const data = await UsersTools.loadUsers(args);
-        this.users = data.users;
-        this.totalCount = data.total;
-        this.totalPages = Math.ceil(this.totalCount / this.pageSize) || 1;
-        this.filteredUsers = [...this.users];
+            const data = await UsersTools.loadUsers(args);
+            this.users = data.users;
+            this.totalCount = data.total;
+            this.totalPages = Math.ceil(this.totalCount / this.pageSize) || 1;
+            this.filteredUsers = [...this.users];
 
-        this.renderTable(skipAnimation);
-        this.renderPagination();
+            this.renderTable(skipAnimation);
+            this.renderPagination();
+            
+            console.log('[UsersController] 用户列表加载完成，共', this.totalCount, '条记录');
+        } catch (error) {
+            console.error('[UsersController] 加载用户列表失败:', error);
+        } finally {
+            this.isLoadingUsers = false;
+        }
     }
 
     /**

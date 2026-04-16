@@ -419,15 +419,19 @@ class Workplace {
      * @param {string} pageName - 页面名称
      */
     async navigate(pageName) {
-        if (this.currentPage === pageName) return;
+        if (this.currentPage === pageName) {
+            console.log(`[Workplace] 已经是当前页面: ${pageName}，跳过导航`);
+            return;
+        }
 
-        console.log(`[Workplace] 导航到: ${pageName}`);
+        console.log(`[Workplace] 导航到: ${pageName}，当前页面: ${this.currentPage || '无'}`);
 
         // 更新菜单选中状态
         this.updateActiveMenu(pageName);
 
         // 隐藏当前页面
         if (this.currentController && typeof this.currentController.hide === 'function') {
+            console.log(`[Workplace] 隐藏当前页面控制器: ${this.currentPage}`);
             this.currentController.hide();
         }
 
@@ -435,22 +439,27 @@ class Workplace {
         if (this.controllers[pageName]) {
             // 使用控制器加载页面
             this.currentController = this.controllers[pageName];
+            console.log(`[Workplace] 使用控制器: ${pageName}`);
 
             // 检查控制器是否已初始化
             if (typeof this.currentController.init === 'function') {
+                console.log(`[Workplace] 调用控制器 init() 方法`);
                 await this.currentController.init(this.workspaceContent);
             }
 
             // 显示页面
             if (typeof this.currentController.show === 'function') {
+                console.log(`[Workplace] 调用控制器 show() 方法`);
                 await this.currentController.show();
             }
         } else {
             // 没有控制器，直接加载模板
+            console.warn(`[Workplace] 页面 ${pageName} 没有对应的控制器`);
             await this.loadPage(pageName);
         }
 
         this.currentPage = pageName;
+        console.log(`[Workplace] 导航完成，当前页面设置为: ${pageName}`);
     }
 
     /**

@@ -53,16 +53,34 @@ const OrganizationTools = {
     /**
      * 保存单位
      * @param {string} order 'create_unit' 或 'update_unit'
-     * @param {Object} args {level1, level2, level3}
+     * @param {Object} args {full_name, level1, level2, level3, old_full_name?}
      */
     async saveUnit(order, args) {
         try {
+            console.log('[OrganizationTools] 保存单位:', order, args);
             const response = await fetch('/api/setting/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order, args })
             });
-            return await response.json();
+            
+            // 检查响应状态
+            if (!response.ok) {
+                console.error('[OrganizationTools] 保存单位HTTP错误:', response.status, response.statusText);
+                // 尝试获取错误信息
+                const errorText = await response.text();
+                console.error('[OrganizationTools] 错误响应:', errorText);
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    return errorJson;
+                } catch {
+                    return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
+                }
+            }
+            
+            const result = await response.json();
+            console.log('[OrganizationTools] 保存单位结果:', result);
+            return result;
         } catch (error) {
             console.error('[OrganizationTools] 保存单位出错:', error);
             return { success: false, error: '网络请求失败' };
