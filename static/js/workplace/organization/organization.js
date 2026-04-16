@@ -277,11 +277,28 @@ class OrganizationController {
         }
     }
 
-    async loadUnits(skipAnimation = false) {
-        this.units = await OrganizationTools.loadUnits();
-        this.filteredUnits = [...this.units];
-        this.updateLevel1Filter();
-        this.renderUnitsTable(skipAnimation);
+    async loadUnits(skipAnimation = false, resetPage = false) {
+        console.log('[OrganizationController] 开始加载单位列表，skipAnimation=', skipAnimation, 'resetPage=', resetPage);
+        try {
+            this.units = await OrganizationTools.loadUnits();
+            console.log('[OrganizationController] 单位列表加载完成，共', this.units.length, '条记录');
+            console.log('[OrganizationController] 单位列表前5条:', this.units.slice(0, 5));
+            
+            this.filteredUnits = [...this.units];
+            this.updateLevel1Filter();
+            
+            // 如果重置分页，回到第一页
+            if (resetPage) {
+                console.log('[OrganizationController] 重置分页到第一页');
+                this.unitsPage = 1;
+            }
+            
+            console.log('[OrganizationController] 当前分页:', this.unitsPage);
+            this.renderUnitsTable(skipAnimation);
+            console.log('[OrganizationController] 单位列表渲染完成');
+        } catch (error) {
+            console.error('[OrganizationController] 加载单位列表出错:', error);
+        }
     }
 
     updateLevel1Filter() {
@@ -325,12 +342,19 @@ class OrganizationController {
     }
 
     renderUnitsTable(skipAnimation = false) {
+        console.log('[OrganizationController] 渲染单位表格，skipAnimation=', skipAnimation);
+        console.log('[OrganizationController] filteredUnits长度:', this.filteredUnits.length);
+        console.log('[OrganizationController] unitsPage:', this.unitsPage, 'unitsPageSize:', this.unitsPageSize);
+        
         const startIndex = (this.unitsPage - 1) * this.unitsPageSize;
         const endIndex = startIndex + this.unitsPageSize;
         const pageData = this.filteredUnits.slice(startIndex, endIndex);
         const totalPages = Math.ceil(this.filteredUnits.length / this.unitsPageSize) || 1;
 
+        console.log('[OrganizationController] 分页数据: startIndex=', startIndex, 'endIndex=', endIndex, 'pageData长度=', pageData.length, 'totalPages=', totalPages);
+
         if (pageData.length === 0) {
+            console.log('[OrganizationController] 分页数据为空，显示空状态');
             this.elements.unitsTableBody.innerHTML = `
                 <tr>
                     <td colspan="4" class="px-6 py-8 text-center text-gray-500">
@@ -485,11 +509,18 @@ class OrganizationController {
         const order = isEdit ? 'update_unit' : 'create_unit';
 
         // 发送给后端的参数
-        const args = { full_name: fullName, level1, level2, level3 };
+        const args = { level1, level2, level3 };
         
-        // 如果是编辑，还需要传递旧的单位全称
+        // 如果是编辑，需要传递旧的单位全称作为full_name参数
+        // 如果是创建，需要传递新的单位全称作为full_name参数
         if (isEdit) {
-            args.old_full_name = this.elements.unitId.value;
+            // 编辑时：full_name是旧的单位全称（用于定位要更新的单位）
+            args.full_name = this.elements.unitId.value;
+            console.log('[OrganizationController] 编辑模式: old_full_name=', this.elements.unitId.value, 'new_fullName=', fullName);
+        } else {
+            // 创建时：full_name是新的单位全称
+            args.full_name = fullName;
+            console.log('[OrganizationController] 创建模式: full_name=', fullName);
         }
 
         console.log('[OrganizationController] 保存单位参数:', { order, args });
@@ -513,10 +544,19 @@ class OrganizationController {
         WpAnimation.popIn(this.elements.deleteModal.querySelector('.wp-modal-container'));
     }
 
-    async loadDispatchPermissions(skipAnimation = false) {
+    async loadDispatchPermissions(skipAnimation = false, resetPage = false) {
+        console.log('[OrganizationController] 开始加载下发权限列表');
         this.dispatchPermissions = await OrganizationTools.loadDispatchPermissions();
+        console.log('[OrganizationController] 下发权限列表加载完成，共', this.dispatchPermissions.length, '条记录');
         this.filteredDispatchPermissions = [...this.dispatchPermissions];
+        
+        // 如果重置分页，回到第一页
+        if (resetPage) {
+            this.dispatchPage = 1;
+        }
+        
         this.renderDispatchTable(skipAnimation);
+        console.log('[OrganizationController] 下发权限列表渲染完成');
     }
 
     filterDispatchPermissions() {
@@ -869,6 +909,7 @@ class OrganizationController {
     }
 
     async confirmDelete() {
+        console.log('[OrganizationController] 确认删除:', this.deleteType, this.deleteId);
         if (!this.deleteType || !this.deleteId) {
             this.closeDeleteModal();
             return;
@@ -876,17 +917,29 @@ class OrganizationController {
 
         let result;
         if (this.deleteType === 'unit') {
+            console.log('[OrganizationController] 删除单位:', this.deleteId);
             result = await OrganizationTools.deleteUnit(this.deleteId);
         } else {
+            console.log('[OrganizationController] 删除下发权限:', this.deleteId);
             result = await OrganizationTools.deleteDispatchPermission(this.deleteId);
         }
 
+        console.log('[OrganizationController] 删除结果:', result);
         if (result.success) {
+            // 先保存deleteType，因为closeDeleteModal会重置它
+            const deleteType = this.deleteType;
+            
             this.closeDeleteModal();
-            if (this.deleteType === 'unit') {
-                await this.loadUnits();
+            
+            if (deleteType === 'unit') {
+                console.log('[OrganizationController] 删除单位成功，重新加载单位列表，deleteType=', deleteType);
+                // 删除后重置分页到第一页
+                await this.loadUnits(false, true);
+                console.log('[OrganizationController] 单位列表重新加载完成');
             } else {
-                await this.loadDispatchPermissions();
+                console.log('[OrganizationController] 删除下发权限成功，重新加载下发权限列表，deleteType=', deleteType);
+                // 删除后重置分页到第一页
+                await this.loadDispatchPermissions(false, true);
             }
             if(window.workplace) window.workplace.showNotification('删除成功', 'bottom', 3000);
         } else {

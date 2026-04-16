@@ -33,13 +33,24 @@ const OrganizationTools = {
      */
     async loadUnits() {
         try {
+            console.log('[OrganizationTools] 开始加载单位列表');
             const response = await fetch('/api/setting/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ order: 'get_units', args: {} })
             });
+            
+            // 检查响应状态
+            if (!response.ok) {
+                console.error('[OrganizationTools] 加载单位列表HTTP错误:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('[OrganizationTools] 错误响应:', errorText);
+                return [];
+            }
+            
             const result = await response.json();
             if (result.success) {
+                console.log('[OrganizationTools] 单位列表加载成功，共', result.data?.length || 0, '条记录');
                 return result.data || [];
             }
             console.error('[OrganizationTools] 加载单位列表失败:', result.error);
@@ -93,6 +104,7 @@ const OrganizationTools = {
      */
     async deleteUnit(fullName) {
         try {
+            console.log('[OrganizationTools] 删除单位:', fullName);
             const response = await fetch('/api/setting/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -101,7 +113,23 @@ const OrganizationTools = {
                     args: { full_name: fullName }
                 })
             });
-            return await response.json();
+            
+            // 检查响应状态
+            if (!response.ok) {
+                console.error('[OrganizationTools] 删除单位HTTP错误:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('[OrganizationTools] 错误响应:', errorText);
+                try {
+                    const errorJson = JSON.parse(errorText);
+                    return errorJson;
+                } catch {
+                    return { success: false, error: `HTTP ${response.status}: ${response.statusText}` };
+                }
+            }
+            
+            const result = await response.json();
+            console.log('[OrganizationTools] 删除单位结果:', result);
+            return result;
         } catch (error) {
             console.error('[OrganizationTools] 删除单位出错:', error);
             return { success: false, error: '网络请求失败' };
@@ -113,6 +141,7 @@ const OrganizationTools = {
      */
     async loadDispatchPermissions() {
         try {
+            console.log('[OrganizationTools] 开始加载下发权限列表');
             const response = await fetch('/api/setting/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -120,6 +149,7 @@ const OrganizationTools = {
             });
             const result = await response.json();
             if (result.success) {
+                console.log('[OrganizationTools] 下发权限列表加载成功，共', result.data?.length || 0, '条记录');
                 return result.data || [];
             }
             console.error('[OrganizationTools] 加载下发权限失败:', result.error);
